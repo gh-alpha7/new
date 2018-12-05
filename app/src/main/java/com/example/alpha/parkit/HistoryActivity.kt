@@ -17,6 +17,7 @@ class HistoryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
+        setTitle("History")
 
         bookingList.add(Booking("Sun, Dec 02, 18","location","09:30 AM","10:01 AM","₹21",R.drawable.googleg_standard_color_18))
         bookingList.add(Booking("Sun, Dec 02, 18","location","09:30 AM","10:01 AM","₹21",R.drawable.googleg_standard_color_18))

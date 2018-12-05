@@ -10,7 +10,7 @@ class ProfileActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTitle("Profile");
+        setTitle("Profile")
         setContentView(R.layout.activity_profile)
         val name = intent.getStringExtra("name")
     }

@@ -1,0 +1,9 @@
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+       android:insetLeft="45dp"
+       android:insetRight="10dp" >
+
+    <shape android:shape="rectangle" >
+        <solid android:color="#E5E8E8" />
+    </shape>
+
+</inset>
