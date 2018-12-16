@@ -1,6 +1,7 @@
 package com.example.alpha.parkit
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
@@ -60,7 +61,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
-            R.id.action_settings -> return true
+            R.id.qrscan -> {
+                try {
+
+                    val intent = Intent("com.google.zxing.client.android.SCAN")
+                    intent.putExtra("SCAN_MODE", "QR_CODE_MODE") // "PRODUCT_MODE for bar codes
+                    intent.putExtra("PROMPT_MESSAGE", "Point the camera at the code")
+                    intent.putExtra("SCAN_CAMERA_ID", 1)
+                    startActivityForResult(intent, 0)
+
+                } catch (e: Exception) {
+
+                    var marketUri = Uri.parse("market://details?id=com.google.zxing.client.android")
+                    val marketIntent = Intent(Intent.ACTION_VIEW, marketUri)
+                    startActivity(marketIntent)
+
+                }
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }
@@ -100,6 +118,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         startActivity(intent)
 
+    }
+
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 0) {
+
+            if (resultCode == RESULT_OK) {
+                val contents = data!!.getStringExtra("SCAN_RESULT")
+            }
+            if (resultCode == RESULT_CANCELED) {
+                //handle cancel
+            }
+        }
     }
 
 
