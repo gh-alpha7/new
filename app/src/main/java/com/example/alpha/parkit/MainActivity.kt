@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import com.example.alpha.parkit.R.id.image
 import com.example.alpha.parkit.R.id.imageView
+import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
@@ -29,15 +30,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .setAction("Action", null).show()
         }
 
-
-
-
-
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+
+        //View map_holder =  findViewById (R.id.map_holder);
+        //View map = map_holder.findViewBId (R.id.map)
 
         nav_view.setNavigationItemSelectedListener(this)
     }
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item.itemId) {
 
             R.id.history -> {
-                val intent = Intent(this,HistoryActivity::class.java).apply {
+                val intent = Intent(this, HistoryActivity::class.java).apply {
 
                 }
                 startActivity(intent)
@@ -99,6 +99,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.signout -> {
 
             }
+            R.id.maps_link -> {
+                val i = Intent(this, maps::class.java)
+                //val intent = Intent(this, maps::class.java)
+                startActivity(i)
+            }
             R.id.nav_share -> {
 
             }
@@ -108,18 +113,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    fun profileImageClick(view:View){
+    fun profileImageClick(view: View) {
 
-        val intent = Intent(this,ProfileActivity::class.java).apply {
-            putExtra("name","Subham Singh")
-            putExtra("email","shubhamsngh067@gmail.com")
-            putExtra("phNo","8862944302")
-            putExtra("pass","******")
+        val intent = Intent(this, ProfileActivity::class.java).apply {
+            putExtra("name", "Subham Singh")
+            putExtra("email", "shubhamsngh067@gmail.com")
+            putExtra("phNo", "8862944302")
+            putExtra("pass", "******")
         }
         startActivity(intent)
 
     }
-
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
