@@ -13,13 +13,22 @@ import android.view.MenuItem
 import android.view.View
 import com.example.alpha.parkit.R.id.image
 import com.example.alpha.parkit.R.id.imageView
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.location.places.Place
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
+import com.google.android.gms.location.places.ui.PlaceSelectionListener
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback {
+    private lateinit var mMap: GoogleMap
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -40,6 +49,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //View map = map_holder.findViewBId (R.id.map)
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        val autocompleteFragment =
+            fragmentManager.findFragmentById(R.id.place_autocomplete_fragment) as PlaceAutocompleteFragment
+
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                mMap.clear()
+                mMap.addMarker(MarkerOptions().position(place.latLng).title(place.name.toString()))
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(place.latLng))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.latLng, 12.0f))
+            }
+
+            override fun onError(status: Status) {
+
+            }
+        })
     }
 
     override fun onBackPressed() {
@@ -100,7 +129,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
             R.id.maps_link -> {
-                val i = Intent(this, maps::class.java)
+                val i = Intent(this, MapsActivity::class.java)
                 //val intent = Intent(this, maps::class.java)
                 startActivity(i)
             }
@@ -139,5 +168,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+
+        // Add a marker in Sydney and move the camera
+        val sydney = LatLng(-34.0, 151.0)
+        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+    }
 
 }
