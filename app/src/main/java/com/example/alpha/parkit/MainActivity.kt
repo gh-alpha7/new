@@ -1,16 +1,19 @@
 package com.example.alpha.parkit
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
+import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import com.example.alpha.parkit.R.id.image
 import com.example.alpha.parkit.R.id.imageView
 import com.google.android.gms.common.api.Status
@@ -26,18 +29,29 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityCompat.requestPermissions
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.model.CircleOptions;
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
+//
+//        fab.setOnClickListener { view ->
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+//        }
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -56,6 +70,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val autocompleteFragment =
             fragmentManager.findFragmentById(R.id.place_autocomplete_fragment) as PlaceAutocompleteFragment
+
+
+
 
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
@@ -123,6 +140,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.qr -> {
+                val intent = Intent(this, PaymentActivity::class.java).apply {
+
+                }
+                startActivity(intent)
 
             }
             R.id.signout -> {
@@ -167,14 +188,90 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
+    private val onMyLocationButtonClickListener = GoogleMap.OnMyLocationButtonClickListener {
+        mMap.setMinZoomPreference(15f)
+        false
+    }
+
+    private val onMyLocationClickListener = GoogleMap.OnMyLocationClickListener { location ->
+        mMap.setMinZoomPreference(12f)
+
+        val circleOptions = CircleOptions()
+        circleOptions.center(
+            LatLng(
+                location.latitude,
+                location.longitude
+            )
+        )
+
+        circleOptions.radius(200.0)
+        circleOptions.fillColor(Color.RED)
+        circleOptions.strokeWidth(6f)
+
+        mMap.addCircle(circleOptions)
+        mMap.setMinZoomPreference(15f)
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    enableMyLocationIfPermitted()
+                } else {
+                    showDefaultLocation()
+                }
+                return
+            }
+        }
+    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        enableMyLocationIfPermitted()
+        mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
+        mMap.setOnMyLocationClickListener(onMyLocationClickListener)
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        mMap.uiSettings.isZoomControlsEnabled = true
+        mMap.setMinZoomPreference(11F)
+        showDefaultLocation()
+
     }
+
+    private fun enableMyLocationIfPermitted() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else if (mMap != null) {
+            mMap.isMyLocationEnabled = true
+        }
+    }
+
+    private fun showDefaultLocation() {
+        Toast.makeText(
+            this, "Location permission not granted, " + "showing default location",
+            Toast.LENGTH_SHORT
+        ).show()
+        val bangalore = LatLng(12.9716, 77.5946)
+        mMap.setMinZoomPreference(15f)
+        mMap.addMarker(MarkerOptions().position(bangalore).title("Marker in Bangalore"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(bangalore))
+    }
+
+
+
+
+
+
+
 
 }

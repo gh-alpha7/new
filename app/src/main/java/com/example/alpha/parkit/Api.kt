@@ -27,9 +27,7 @@ interface Api {
 
     companion object {
 
-        //this is the URL of the paytm folder that we added in the server
-        //make sure you are using your ip else it will not work
-        val BASE_URL = "http://192.168.101.1/paytm/"
+        val BASE_URL = "http://192.168.0.3/paytm/"
     }
 
 }

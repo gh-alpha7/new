@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import com.paytm.pgsdk.Log
 
 import com.paytm.pgsdk.PaytmOrder
 import com.paytm.pgsdk.PaytmPGService
@@ -27,7 +28,7 @@ class PaymentActivity : AppCompatActivity(), PaytmPaymentTransactionCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_payment)
 
         //getting the textview
         textViewPrice = findViewById(R.id.textViewPrice)
@@ -36,13 +37,14 @@ class PaymentActivity : AppCompatActivity(), PaytmPaymentTransactionCallback {
         //attaching a click listener to the button buy
         findViewById<View>(R.id.buttonBuy).setOnClickListener {
             //calling the method generateCheckSum() which will generate the paytm checksum for payment
+
             generateCheckSum()
         }
 
     }
 
     private fun generateCheckSum() {
-
+        Log.d("pressed","entered")
         //getting the tax amount first.
         val txnAmount = textViewPrice!!.text.toString().trim { it <= ' ' }
 
@@ -84,11 +86,13 @@ class PaymentActivity : AppCompatActivity(), PaytmPaymentTransactionCallback {
 
                 //once we get the checksum we will initiailize the payment.
                 //the method is taking the checksum we got and the paytm object as the parameter
+                print("passed")
                 initializePaytmPayment(response.body().checksumHash, paytm)
+
             }
 
             override fun onFailure(call: Call<Checksum>, t: Throwable) {
-
+                print("failed")
             }
         })
     }

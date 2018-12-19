@@ -12,4 +12,6 @@ class Checksum(
     val checksumHash: String, @field:SerializedName("ORDER_ID")
     val orderId: String, @field:SerializedName("payt_STATUS")
     val paytStatus: String
+
+
 )
