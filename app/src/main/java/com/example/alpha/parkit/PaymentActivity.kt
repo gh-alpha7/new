@@ -31,11 +31,11 @@ class PaymentActivity : AppCompatActivity(), PaytmPaymentTransactionCallback {
         setContentView(R.layout.activity_payment)
 
         //getting the textview
-        textViewPrice = findViewById(R.id.textViewPrice)
+        textViewPrice = findViewById(R.id.costText)
 
 
         //attaching a click listener to the button buy
-        findViewById<View>(R.id.buttonBuy).setOnClickListener {
+        findViewById<View>(R.id.payButton).setOnClickListener {
             //calling the method generateCheckSum() which will generate the paytm checksum for payment
 
             generateCheckSum()
@@ -44,6 +44,12 @@ class PaymentActivity : AppCompatActivity(), PaytmPaymentTransactionCallback {
     }
 
     private fun generateCheckSum() {
+        val text = "Checksum generation started"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(applicationContext, text, duration)
+        toast.show()
+
         Log.d("pressed","entered")
         //getting the tax amount first.
         val txnAmount = textViewPrice!!.text.toString().trim { it <= ' ' }
@@ -80,6 +86,9 @@ class PaymentActivity : AppCompatActivity(), PaytmPaymentTransactionCallback {
             paytm.industryTypeId
         )
 
+
+        val toast2 = Toast.makeText(applicationContext, txnAmount, duration)
+        toast2.show()
         //making the call to generate checksum
         call.enqueue(object : Callback<Checksum> {
             override fun onResponse(call: Call<Checksum>, response: Response<Checksum>) {
@@ -98,6 +107,12 @@ class PaymentActivity : AppCompatActivity(), PaytmPaymentTransactionCallback {
     }
 
     private fun initializePaytmPayment(checksumHash: String, paytm: Paytm) {
+
+        val text = "Initialized Payment"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(applicationContext, text, duration)
+        toast.show()
 
         //getting paytm service
         val Service = PaytmPGService.getStagingService()

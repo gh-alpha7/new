@@ -40,5 +40,5 @@ dependencies {
     implementation 'com.github.arimorty:floatingsearchview:2.0.3'
     implementation 'com.google.android.gms:play-services-maps:11.6.0'
     implementation 'com.google.android.gms:play-services-location:11.6.0'
-
+    implementation files('libs/PGSDK_V2.1.jar')
 }

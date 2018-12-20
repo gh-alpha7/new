@@ -18,7 +18,8 @@ import android.text.method.TextKeyListener.clear
 import com.google.android.gms.common.api.Status
 
 
-class MapsActivity : FragmentActivity(), OnMapReadyCallback {
+class
+MapsActivity : FragmentActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
 

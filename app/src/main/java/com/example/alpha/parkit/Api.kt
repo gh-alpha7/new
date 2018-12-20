@@ -27,7 +27,7 @@ interface Api {
 
     companion object {
 
-        val BASE_URL = "http://192.168.0.3/paytm/"
+        val BASE_URL = "http://35.243.241.140/paytm/"
     }
 
 }
