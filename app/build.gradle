@@ -33,6 +33,11 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.google.android.gms:play-services-places:16.0.0'
+
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-auth:16.1.0'
+    implementation 'com.google.android.gms:play-services-auth:16.0.1'
+
     implementation files('libs/PGSDK_V2.1.jar')
     implementation 'com.squareup.retrofit2:retrofit:2.2.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.2.0'
@@ -42,3 +47,4 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:11.6.0'
     implementation files('libs/PGSDK_V2.1.jar')
 }
+apply plugin: 'com.google.gms.google-services'
