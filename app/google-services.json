@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "819022767661",
+    "firebase_url": "https://parkin-227515.firebaseio.com",
+    "project_id": "parkin-227515",
+    "storage_bucket": "parkin-227515.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819022767661:android:f17361c1e25f6e8f",
+        "android_client_info": {
+          "package_name": "com.example.alpha.parkit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "819022767661-nq5umussbp3v0n56ks2a6qcatqq5s9aj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoncE3HjFoXY3gJZucv4yPfQuWXCSya58"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

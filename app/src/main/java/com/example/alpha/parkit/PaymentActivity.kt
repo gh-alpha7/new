@@ -47,11 +47,11 @@ class PaymentActivity : AppCompatActivity() {
         setContentView(R.layout.activity_payment)
 
         //getting the textview
-        textViewPrice = findViewById(R.id.textViewPrice)
+        textViewPrice = findViewById(R.id.costText)
 
 
         //attaching a click listener to the button buy
-        findViewById<View>(R.id.buttonBuy).setOnClickListener {
+        findViewById<View>(R.id.payButton).setOnClickListener {
             //calling the method generateCheckSum() which will generate the paytm checksum for payment
 
             generateChecksum()
@@ -60,16 +60,94 @@ class PaymentActivity : AppCompatActivity() {
 
     }
 
+<<<<<<< HEAD
     override fun onStart() {
         super.onStart()
         //initOrderId();
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+=======
+    private fun generateCheckSum() {
+        val text = "Checksum generation started"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(applicationContext, text, duration)
+        toast.show()
+
+        Log.d("pressed","entered")
+        //getting the tax amount first.
+        val txnAmount = textViewPrice!!.text.toString().trim { it <= ' ' }
+
+        //creating a retrofit object.
+        val retrofit = Retrofit.Builder()
+            .baseUrl(Api.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        //creating the retrofit api service
+        val apiService = retrofit.create(Api::class.java)
+
+        //creating paytm object
+        //containing all the values required
+        val paytm = Paytm(
+            Constants.M_ID,
+            Constants.CHANNEL_ID,
+            txnAmount,
+            Constants.WEBSITE,
+            Constants.CALLBACK_URL,
+            Constants.INDUSTRY_TYPE_ID
+        )
+
+        //creating a call object from the apiService
+        val call = apiService.getChecksum(
+            paytm.getmId(),
+            paytm.orderId,
+            paytm.custId,
+            paytm.channelId,
+            paytm.txnAmount,
+            paytm.website,
+            paytm.callBackUrl,
+            paytm.industryTypeId
+        )
+
+
+        val toast2 = Toast.makeText(applicationContext, txnAmount, duration)
+        toast2.show()
+        //making the call to generate checksum
+        call.enqueue(object : Callback<Checksum> {
+            override fun onResponse(call: Call<Checksum>, response: Response<Checksum>) {
+
+                //once we get the checksum we will initiailize the payment.
+                //the method is taking the checksum we got and the paytm object as the parameter
+                print("passed")
+                initializePaytmPayment(response.body().checksumHash, paytm)
+
+            }
+
+            override fun onFailure(call: Call<Checksum>, t: Throwable) {
+                print("failed")
+            }
+        })
+>>>>>>> 9776825679d684e621b5debd816d0699c836fda9
     }
 
 
+<<<<<<< HEAD
     fun generateChecksum(){
         var r= Random(System.currentTimeMillis())
         order_id="Order"+(1+r.nextInt(2))*1000+r.nextInt(1001)
+=======
+        val text = "Initialized Payment"
+        val duration = Toast.LENGTH_SHORT
+
+        val toast = Toast.makeText(applicationContext, text, duration)
+        toast.show()
+
+        //getting paytm service
+        val Service = PaytmPGService.getStagingService()
+
+        //use this when using for production
+        //PaytmPGService Service = PaytmPGService.getProductionService();
+>>>>>>> 9776825679d684e621b5debd816d0699c836fda9
 
         var url:String="http://paytm-env.vbh285k2fk.us-east-2.elasticbeanstalk.com/paytm/generateChecksum.php"
         var params=HashMap<String,String>()
