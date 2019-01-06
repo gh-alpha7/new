@@ -27,7 +27,7 @@ interface Api {
 
     companion object {
 
-        val BASE_URL = "http://192.168.0.3/paytm/"
+        val BASE_URL = "http://paytm-env.vbh285k2fk.us-east-2.elasticbeanstalk.com/paytm/"
     }
 
 }
