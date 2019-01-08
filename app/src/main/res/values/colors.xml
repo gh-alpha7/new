@@ -3,19 +3,18 @@
     <color name="colorPrimary">#37A4D5</color>
     <color name="colorPrimaryDark">#3B81A1</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="route">#5DADE2</color>s
+    <color name="route">#5DADE2</color>
+    <color name="orange">#fff3e157</color>
     <color name="black">#ff000000</color>
-<color name="blue">#ff0000c2</color>
-<color name="design_textinput_error_color">#ffdd2c00</color>
-<color name="dgreen">#ff00d400</color>
-<color name="green">#ff42a451</color>
-<color name="greentab">#ff5dc169</color>
-<color name="greentoolbar">#ff58c069</color>
-<color name="hint_foreground_material_dark">@color/bright_foreground_disabled_material_dark
-</color>
-<color name="hint_foreground_material_light">@color/bright_foreground_disabled_material_light
-</color>
-<color name="orange">#fff3e157</color>
-<color name="white">#ffffffff</color>
->>>>>>> 9776825679d684e621b5debd816d0699c836fda9
+    <color name="blue">#ff0000c2</color>
+    <color name="design_textinput_error_color">#ffdd2c00</color>
+    <color name="dgreen">#ff00d400</color>
+    <color name="green">#ff42a451</color>
+    <color name="greentab">#ff5dc169</color>
+    <color name="greentoolbar">#ff58c069</color>
+    <color name="hint_foreground_material_dark">@color/bright_foreground_disabled_material_dark
+    </color>
+    <color name="hint_foreground_material_light">@color/bright_foreground_disabled_material_light
+    </color>
+    <color name="white">#ffffffff</color>
 </resources>

@@ -7,6 +7,7 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
+
     <android.support.design.widget.AppBarLayout
             android:layout_height="50dp"
             android:layout_width="match_parent"
@@ -39,13 +40,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/bookFloat"
-            android:layout_gravity="bottom|left" android:layout_margin="10dp">
+            android:layout_gravity="bottom|left" android:layout_margin="10dp"
+            >
         <android.support.design.widget.FloatingActionButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true" android:id="@+id/floatingActionButton"
-                app:backgroundTint="@color/back_net_banking" android:layout_gravity="bottom"
+                app:backgroundTint="@color/colorPrimary" android:layout_gravity="bottom"
                 android:layout_margin="10dp"
+                android:onClick="clickBook"
         />
 
         <TextView
@@ -54,7 +57,7 @@
                 android:layout_gravity="center"
                 android:text="BOOK"
                 android:elevation="16dp"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
     </FrameLayout>
 
