@@ -3,9 +3,7 @@
     <color name="colorPrimary">#37A4D5</color>
     <color name="colorPrimaryDark">#3B81A1</color>
     <color name="colorAccent">#D81B60</color>
-<<<<<<< HEAD
-    <color name="route">#5DADE2</color>
-=======
+    <color name="route">#5DADE2</color>s
     <color name="black">#ff000000</color>
 <color name="blue">#ff0000c2</color>
 <color name="design_textinput_error_color">#ffdd2c00</color>
