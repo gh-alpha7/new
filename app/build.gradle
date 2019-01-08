@@ -34,8 +34,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.google.android.gms:play-services-places:16.0.0'
-<<<<<<< HEAD
-=======
 
     implementation 'com.google.firebase:firebase-firestore:17.1.5'
     implementation 'com.google.firebase:firebase-storage:16.0.5'
@@ -44,21 +42,17 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
 
-    implementation files('libs/PGSDK_V2.1.jar')
->>>>>>> 9776825679d684e621b5debd816d0699c836fda9
+    //implementation files('libs/PGSDK_V2.1.jar')
     implementation 'com.squareup.retrofit2:retrofit:2.2.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.2.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.4.0'
     implementation 'com.github.arimorty:floatingsearchview:2.0.3'
-<<<<<<< HEAD
     implementation 'com.google.android.gms:play-services-maps:11.6.0'
     implementation 'com.google.android.gms:play-services-location:11.6.0'
 
     implementation 'com.android.volley:volley:1.1.1'
-=======
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
-    implementation files('libs/PGSDK_V2.1.jar')
->>>>>>> 9776825679d684e621b5debd816d0699c836fda9
+
 }
 apply plugin: 'com.google.gms.google-services'
