@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/white"
+            android:fitsSystemWindows="true">
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="24.0dip"
+            android:paddingRight="24.0dip"
+            android:paddingTop="56.0dip">
+
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="100.0dip"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5.0dip"
+                android:src="@mipmap/ic_launcher_round" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="0.0dip"
+                android:text="@string/company_title"
+                android:textColor="@color/green"
+                android:textSize="30.0sp" />
+
+        <android.support.design.widget.TextInputLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0.0dip"
+                android:layout_marginTop="16.0dip"
+                android:textColorHint="@color/blue"
+        >
+
+            <EditText
+                    android:id="@+id/etUserName"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="email ID / phone number"
+                    android:textColor="@color/blue" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8.0dip"
+                android:layout_marginTop="0.0dip"
+                android:textColorHint="@color/blue"
+        >
+
+            <EditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="password"
+                    android:inputType="textPassword"
+                    android:textColor="@color/blue"
+            />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btnLogin"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24.0dip"
+                android:layout_marginTop="24.0dip"
+                android:background="@color/orange"
+                android:padding="12.0dip"
+                android:text="Login"
+                android:textColor="@color/black" />
+
+        <TextView
+                android:id="@+id/link_signup"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10.0dip"
+                android:paddingLeft="0.0dip"
+                android:text="New to Prakritifresh? Please Sign up."
+                android:textColor="@color/blue"
+                android:textSize="16.0sp" />
+
+        <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btn_signup"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24.0dip"
+                android:background="@color/orange"
+                android:padding="12.0dip"
+                android:text="SIGNUP" />
+    </LinearLayout>
+</ScrollView>

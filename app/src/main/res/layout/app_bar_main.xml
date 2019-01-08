@@ -8,7 +8,7 @@
         tools:context=".MainActivity">
 
     <android.support.design.widget.AppBarLayout
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_width="match_parent"
             android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -17,18 +17,45 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+                app:popupTheme="@style/AppTheme.PopupOverlay">
+            <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content" app:srcCompat="@drawable/qrcode" android:id="@+id/imageView3"
+                    android:onClick="qrcodeclick"
+                    android:layout_gravity="right"
+
+            />
+
+
+
+        </android.support.v7.widget.Toolbar>
+
 
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_main"/>
-
-    <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
+    <include layout="@layout/float_place_search" />
+    <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_dialog_email"/>
+            android:id="@+id/bookFloat"
+            android:layout_gravity="bottom|left" android:layout_margin="10dp">
+        <android.support.design.widget.FloatingActionButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true" android:id="@+id/floatingActionButton"
+                app:backgroundTint="@color/back_net_banking" android:layout_gravity="bottom"
+                android:layout_margin="10dp"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="BOOK"
+                android:elevation="16dp"
+                android:textColor="@color/black"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+    </FrameLayout>
 
 </android.support.design.widget.CoordinatorLayout>
