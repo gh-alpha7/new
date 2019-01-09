@@ -10,10 +10,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.widget.EditText
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
@@ -26,21 +22,26 @@ import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.location.Location;
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.AsyncTask
+import android.os.Build
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.requestPermissions
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Html
 import android.util.Log
-import android.widget.TextView
-import android.widget.Toast;
+import android.view.*
+import android.widget.*
 import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.alpha.parkit.R.id.*
@@ -52,6 +53,10 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.maps.android.PolyUtil
+import com.paytm.pgsdk.PaytmOrder
+import com.paytm.pgsdk.PaytmPGService
+import com.paytm.pgsdk.PaytmPaymentTransactionCallback
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.IOException
@@ -59,8 +64,7 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback,LocationListener {
 
@@ -72,6 +76,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val MIN_TIME: Long = 400
     private val MIN_DISTANCE = 1000f
     private var curLatLng:LatLng?=null
+    private var book_flag=0
+    var textViewPrice: TextView? = null
+    var mid:String="parkin46421047711652"
+    var order_id:String?=null
+    var callback_url:String="https://pguat.paytm.com/paytmchecksum/paytmCallback.jsp"
+    var channel_id:String="WAP"
+    var checksumhash:String?=null
+    var industry_type_id:String="Retail"
+    var website:String="APPSTAGING"
+    var txn_amount:String="1"
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,12 +134,74 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
         setUserData()
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun clickBook(view: View){
+        var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        var myView = inflater.inflate(R.layout.activity_spot_book, null)
+        val popupWindow = PopupWindow(
+            myView, // Custom view to show in popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+            true
+        )
+        popupWindow.setOutsideTouchable(false);
+        var d: Drawable = ColorDrawable(Color.WHITE)
+        popupWindow.setBackgroundDrawable(d)
+
+
+        var layout: LinearLayout = LinearLayout(this)
+        popupWindow.elevation=20f
+
+        popupWindow.showAtLocation(layout, Gravity.CENTER, 10, 10)
+        print(R.id.spinner1)
+        val spinner: Spinner? = myView.findViewById(R.id.spinner1)
+        print(spinner)
+        if(spinner!=null) {
+            ArrayAdapter.createFromResource(
+                this,
+                R.array.vehicle,
+                android.R.layout.simple_spinner_item
+            ).also { adapter ->
+                // Specify the layout to use when the list of choices appears
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                // Apply the adapter to the spinner
+                spinner.adapter = adapter
+            }
+            spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long){
+                    // Display the selected item text on text view
+
+
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>){
+                    // Another interface callback
+                }
+            }
+
+
+        }
+
+
+
+
+    }
+
+
+    fun paytmbutton(view: View){
+        Toast.makeText(this, "pay", Toast.LENGTH_SHORT).show()
+        generateChecksum()
+    }
+
     fun setUserData(){
-        val fnameHold = findViewById<TextView>(R.id.main_page_uname) as TextView
-        val emailHold = findViewById<TextView>(R.id.main_page_email) as TextView
+        var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        var myView = inflater.inflate(R.layout.nav_header_main, null)
+        val fnameHold = myView.findViewById(R.id.main_page_uname) as TextView
+        val emailHold = myView.findViewById(R.id.main_page_email) as TextView
         FirebaseFirestore.getInstance().collection("Users")
             .document(FirebaseAuth.getInstance().currentUser!!.uid)
             .get()
@@ -268,6 +344,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (resultCode == RESULT_OK) {
                 val contents = data!!.getStringExtra("SCAN_RESULT")
                 Toast.makeText(this, "scanned", Toast.LENGTH_SHORT).show()// display toast
+                generateChecksum()
             }
             if (resultCode == RESULT_CANCELED) {
                 //handle cancel
@@ -341,10 +418,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // Getting URL to the Google Directions API
             var url:String = getDirectionsUrl(origin, dest)
             print(url)
-            var downloadTask =  DownloadTask();
+            val path: MutableList<List<LatLng>> = ArrayList()
+            val directionsRequest = object : StringRequest(
+                Request.Method.GET, url, Response.Listener<String> {
+                        response ->
+                    val jsonResponse = JSONObject(response)
+                    // Get routes
+                    val routes = jsonResponse.getJSONArray("routes")
+                    val legs = routes.getJSONObject(0).getJSONArray("legs")
+                    val steps = legs.getJSONObject(0).getJSONArray("steps")
+                    for (i in 0 until steps.length()) {
+                        val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
+                        path.add(PolyUtil.decode(points))
+                    }
+                    for (i in 0 until path.size) {
+                        mMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.rgb(93, 173, 226)))
+                    }
 
-            // Start downloading json data from Google Directions API
-            downloadTask.execute(url);
+                }, Response.ErrorListener {
+                        _ ->
+                }){}
+            val requestQueue = Volley.newRequestQueue(this)
+            requestQueue.add(directionsRequest)
+
+
+
 
 
 
@@ -432,117 +530,141 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return "https://maps.googleapis.com/maps/api/directions/$output?$parameters"
     }
 
-    /** A method to download json data from url  */
-    @Throws(IOException::class)
-    private fun downloadUrl(strUrl: String): String {
-        var data = ""
-        var iStream: InputStream? = null
-        var urlConnection: HttpURLConnection? = null
-        val directionsRequest = object : StringRequest(
-            Request.Method.GET, strUrl, Response.Listener<String> {
-                response ->
-            data=response
-            // Get routes
 
-        }, Response.ErrorListener {
-                _ ->
-        }){}
-        val requestQueue = Volley.newRequestQueue(this)
-        requestQueue.add(directionsRequest)
-        return data
+    fun generateChecksum(){
+        var r= Random(System.currentTimeMillis())
+        order_id="Order"+(1+r.nextInt(2))*1000+r.nextInt(1001)
+
+        var url:String="http://paytm-env.vbh285k2fk.us-east-2.elasticbeanstalk.com/paytm/generateChecksum.php"
+        var params=HashMap<String,String>()
+        params.put("MID","parkin46421047711652")
+        params.put("ORDER_ID", order_id!!)
+        params.put("CUST_ID","15123")
+        params.put("INDUSTRY_TYPE_ID","Retail")
+        params.put("CHANNEL_ID","WAP")
+        params.put("TXN_AMOUNT","1")
+        params.put("WEBSITE","APPSTAGING")
+        params.put("CALLBACK_URL", "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=$order_id")
+
+
+        var param=JSONObject(params)
+
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.POST, url, param,
+            Response.Listener{ response ->
+                checksumhash=response.optString("CHECKSUMHASH")
+                print(response.optString("ORDER_ID"))
+                onStartTransaction()
+
+            },
+            Response.ErrorListener { error ->
+                // TODO: Handle error
+            }
+        )
+
+        Volley.newRequestQueue(this).add(jsonObjectRequest)
     }
 
-    // Fetches data from url passed
-    private inner class DownloadTask : AsyncTask<String, Void, String>() {
 
-        // Downloading data in non-ui thread
-        override fun doInBackground(vararg url: String): String {
+    fun onStartTransaction() {
+        val Service = PaytmPGService.getStagingService()
+        val paramMap = HashMap<String, String>()
 
-            // For storing data from web service
-            var data = ""
+        // these are mandatory parameters
 
-            try {
-                // Fetching the data from web service
-                data = downloadUrl(url[0])
-            } catch (e: Exception) {
-                Log.d("Background Task", e.toString())
-            }
+        paramMap["CALLBACK_URL"] = "https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=$order_id"
+        paramMap["CHANNEL_ID"] = "WAP"
+        paramMap["CHECKSUMHASH"] = checksumhash!!
+        paramMap["CUST_ID"] = "15123"
+        paramMap["INDUSTRY_TYPE_ID"] = "Retail"
+        paramMap["MID"] = "parkin46421047711652"
+        paramMap["ORDER_ID"] = order_id!!
+        paramMap["TXN_AMOUNT"] = "1"
+        paramMap["WEBSITE"] = "APPSTAGING"
 
-            return data
-        }
 
-        // Executes in UI thread, after the execution of
-        // doInBackground()
-        override fun onPostExecute(result: String) {
-            super.onPostExecute(result)
 
-            val parserTask = ParserTask()
+        val Order = PaytmOrder(paramMap)
 
-            // Invokes the thread for parsing the JSON data
-            parserTask.execute(result)
-        }
-    }
 
-    /** A class to parse the Google Places in JSON format  */
-    private inner class ParserTask : AsyncTask<String, Int, List<List<HashMap<String, String>>>>() {
+        Service.initialize(Order, null)
 
-        // Parsing the data in non-ui thread
-        override fun doInBackground(vararg jsonData: String): List<List<HashMap<String, String>>>? {
-
-            val jObject: JSONObject
-            var routes: List<List<HashMap<String, String>>>? = null
-
-            try {
-
-                jObject = JSONObject(jsonData[0])!!
-                val parser = DirectionsJSONParser()!!
-                print(jObject)
-                // Starts parsing data
-                routes = parser.parse(jObject)
-            } catch (e: Exception) {
-                e.printStackTrace()
-
-            }
-
-            return routes
-        }
-
-        // Executes in UI thread, after the parsing process
-        override fun onPostExecute(result: List<List<HashMap<String, String>>>) {
-            var points: ArrayList<LatLng>? = null
-            var lineOptions: PolylineOptions? = null
-            val markerOptions = MarkerOptions()
-
-            // Traversing through all the routes
-            for (i in result.indices) {
-                points = ArrayList()
-                lineOptions = PolylineOptions()
-
-                // Fetching i-th route
-                val path = result[i]
-
-                // Fetching all the points in i-th route
-                for (j in path.indices) {
-                    val point = path[j]
-
-                    val lat = java.lang.Double.parseDouble(point["lat"])
-                    val lng = java.lang.Double.parseDouble(point["lng"])
-                    val position = LatLng(lat, lng)
-
-                    points.add(position)
+        Service.startPaymentTransaction(this, true, true,
+            object : PaytmPaymentTransactionCallback {
+                override fun someUIErrorOccurred(inErrorMessage: String) {
+                    // Some UI Error Occurred in Payment Gateway Activity.
+                    // // This may be due to initialization of views in
+                    // Payment Gateway Activity or may be due to //
+                    // initialization    of webview. // Error Message details
+                    // the error occurred.
                 }
 
-                // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points)
-                lineOptions.width(10f)
-                lineOptions.color(Color.rgb(93, 173, 226))
-            }
+                /*@Override
+					public void onTransactionSuccess(Bundle inResponse) {
+						// After successful transaction this method gets called.
+						// // Response bundle contains the merchant response
+						// parameters.
+						Log.d("LOG", "Payment Transaction is successful " + inResponse);
+						Toast.makeText(getApplicationContext(), "Payment Transaction is successful ", Toast.LENGTH_LONG).show();
+					}
+					@Override
+					public void onTransactionFailure(String inErrorMessage,
+							Bundle inResponse) {
+						// This method gets called if transaction failed. //
+						// Here in this case transaction is completed, but with
+						// a failure. // Error Message describes the reason for
+						// failure. // Response bundle contains the merchant
+						// response parameters.
+						Log.d("LOG", "Payment Transaction Failed " + inErrorMessage);
+						Toast.makeText(getBaseContext(), "Payment Transaction Failed ", Toast.LENGTH_LONG).show();
+					}*/
 
-            // Drawing polyline in the Google Map for the i-th route
-            mMap!!.addPolyline(lineOptions)
-        }
+                override fun onTransactionResponse(inResponse: Bundle) {
+                    com.paytm.pgsdk.Log.d("LOG", "Payment Transaction is successful $inResponse")
+                    Toast.makeText(
+                        applicationContext,
+                        "Payment Transaction response " + inResponse.toString(),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                override fun networkNotAvailable() { // If network is not
+                    // available, then this
+                    // method gets called.
+                }
+
+                override fun clientAuthenticationFailed(inErrorMessage: String) {
+                    // This method gets called if client authentication
+                    // failed. // Failure may be due to following reasons //
+                    // 1. Server error or downtime. // 2. Server unable to
+                    // generate checksum or checksum response is not in
+                    // proper format. // 3. Server failed to authenticate
+                    // that client. That is value of payt_STATUS is 2. //
+                    // Error Message describes the reason for failure.
+                }
+
+                override fun onErrorLoadingWebPage(
+                    iniErrorCode: Int,
+                    inErrorMessage: String, inFailingUrl: String
+                ) {
+
+                }
+
+                // had to be added: NOTE
+                override fun onBackPressedCancelTransaction() {
+                    Toast.makeText(this@MainActivity, "Back pressed. Transaction cancelled", Toast.LENGTH_LONG)
+                        .show()
+                }
+
+                override fun onTransactionCancel(inErrorMessage: String, inResponse: Bundle) {
+                    com.paytm.pgsdk.Log.d("LOG", "Payment Transaction Failed $inErrorMessage")
+                    Toast.makeText(baseContext, "Payment Transaction Failed ", Toast.LENGTH_LONG).show()
+                }
+
+            })
     }
+
 
 
 
 }
+

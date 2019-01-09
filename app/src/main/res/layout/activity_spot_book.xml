@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="5"
-                android:id="@+id/editText" android:hint="Time"
+                android:id="@+id/editText" android:hint="Time(hr)"
                 android:layout_centerHorizontal="true" android:layout_alignParentTop="true"
                 android:layout_gravity="center_horizontal" android:textColorLink="@color/black"/>
         <Button
