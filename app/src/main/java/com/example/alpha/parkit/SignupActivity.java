@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
@@ -26,6 +27,8 @@ import com.google.firebase.firestore.*;
 import com.example.alpha.parkit.R;
 
 import java.util.HashMap;
+
+import static com.paytm.pgsdk.easypay.manager.PaytmAssist.getContext;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -221,6 +224,7 @@ public class SignupActivity extends AppCompatActivity {
             signUp(sedit_email, seditpassword, uname, sphone);
         }
     }
+
 
     public void signUp(final String email, String password, final String uname, final String phno) {
 

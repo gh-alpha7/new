@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import android.Manifest;
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -34,7 +35,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.requestPermissions
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.Html
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast;
 import com.android.volley.Request
 import com.android.volley.Response
@@ -44,6 +47,11 @@ import com.example.alpha.parkit.R.id.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.IOException
@@ -96,7 +104,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
-
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
 //                mMap.clear()
@@ -112,14 +119,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?;
         locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
+        setUserData()
 
     }
+
+    fun setUserData(){
+        val fnameHold = findViewById<TextView>(R.id.main_page_uname) as TextView
+        val emailHold = findViewById<TextView>(R.id.main_page_email) as TextView
+        FirebaseFirestore.getInstance().collection("Users")
+            .document(FirebaseAuth.getInstance().currentUser!!.uid)
+            .get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("uname")) {
+                        fnameHold.setText(jsonObject.get("uname").toString());
+                    }
+                    if (jsonObject.containsKey("mail")) {
+                        emailHold.setText(jsonObject.get("mail").toString());
+                        //edit_email.setKeyListener(null);
+                    }
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+
+    }
+
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
         } else {
-            super.onBackPressed()
+            //super.onBackPressed()
         }
     }
 
@@ -160,7 +193,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
             R.id.signout -> {
-
+                signOut()
             }
             R.id.maps_link -> {
                 val i = Intent(this, MapsActivity::class.java)
@@ -186,6 +219,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+
+    fun signOut() {
+        FirebaseAuth.getInstance().signOut()
+        Toast.makeText(
+            this@MainActivity, "Logging Out",
+            Toast.LENGTH_SHORT
+        ).show()
+        startActivity(Intent(this@MainActivity, LoginActivity::class.java))
     }
 
     fun profileImageClick(view: View) {

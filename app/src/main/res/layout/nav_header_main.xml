@@ -2,7 +2,8 @@
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
         android:layout_height="@dimen/nav_header_height"
         android:background="@drawable/side_nav_bar"
 
@@ -26,14 +27,15 @@
     <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/nav_header_vertical_spacing"
+            android:layout_marginTop= "@dimen/nav_header_vertical_spacing"
+            android:id="@+id/main_page_uname"
             android:text="Subham Singh"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" tools:text="Subham Singh"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="shubhamsngh067@gmail.com"
-            android:id="@+id/textView" tools:text="shubhamsngh067@gmail.com"/>
+            android:id="@+id/main_page_email"/>
 
 </LinearLayout>
