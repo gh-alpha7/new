@@ -192,7 +192,7 @@ public class SignupActivity extends AppCompatActivity {
 
         buttonRegister = (Button) findViewById(R.id.btn_signup);
 
-        gologin = (TextView) findViewById(R.id.gologin);
+        gologin = (Button) findViewById(R.id.btn_log);
 
         emaili.getEditText().addTextChangedListener(new C01901());
         passi.getEditText().addTextChangedListener(new C01912());

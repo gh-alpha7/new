@@ -11,33 +11,10 @@
             android:orientation="vertical"
             android:paddingLeft="24.0dip"
             android:paddingRight="24.0dip"
-            android:paddingTop="10.0dip">
+            android:paddingTop="10.0dip"
+            >
 
-        <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10.0dip"
-                android:orientation="horizontal">
 
-            <ImageView
-                    android:layout_width="0.0dip"
-                    android:layout_height="50.0dip"
-                    android:layout_marginBottom="5.0dip"
-                    android:layout_weight="1.0"
-                    android:src="@mipmap/ic_launcher_round" />
-
-            <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="0.0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_weight="3.0"
-                    android:paddingBottom="10.0dip"
-                    android:gravity="center"
-                    android:text="@string/company_title"
-                    android:textColor="@color/green"
-                    android:textSize="20.0sp" />
-        </LinearLayout>
 
         <android.support.design.widget.TextInputLayout
                 android:layout_width="fill_parent"
@@ -46,7 +23,7 @@
                 android:layout_marginTop="8.0dip"
                 android:layout_weight="1.0"
                 android:paddingRight="10.0dip"
-                android:textColorHint="@color/blue">
+                android:textColorHint="#808B96">
 
             <EditText
                     android:id="@+id/input_fname"
@@ -57,7 +34,7 @@
                     android:hint="Username"
                     android:inputType="textPersonName"
                     android:maxLength="100"
-                    android:textColor="@color/blue" />
+                    android:textColor="@color/black" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -66,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8.0dip"
                 android:layout_marginTop="8.0dip"
-                android:textColorHint="@color/blue">
+                android:textColorHint="#808B96">
 
             <EditText
                     android:id="@+id/input_email"
@@ -77,7 +54,7 @@
                     android:hint="Email"
                     android:inputType="textEmailAddress"
                     android:maxLength="100"
-                    android:textColor="@color/blue" />
+                    android:textColor="@color/black" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -86,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8.0dip"
                 android:layout_marginTop="8.0dip"
-                android:textColorHint="@color/blue">
+                android:textColorHint="#808B96">
 
             <EditText
                     android:id="@+id/input_password1"
@@ -97,7 +74,7 @@
                     android:hint="Password"
                     android:inputType="textPassword"
                     android:maxLength="100"
-                    android:textColor="@color/blue" />
+                    android:textColor="@color/black" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -106,7 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8.0dip"
                 android:layout_marginTop="8.0dip"
-                android:textColorHint="@color/blue">
+                android:textColorHint="#808B96">
 
             <EditText
                     android:id="@+id/input_password2"
@@ -117,7 +94,7 @@
                     android:hint="Confirm Password"
                     android:inputType="textPassword"
                     android:maxLength="100"
-                    android:textColor="@color/blue" />
+                    android:textColor="@color/black" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -126,7 +103,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8.0dip"
                 android:layout_marginTop="8.0dip"
-                android:textColorHint="@color/blue">
+                android:textColorHint="#808B96">
 
             <EditText
                     android:id="@+id/input_phone"
@@ -137,40 +114,29 @@
                     android:hint="Phone No."
                     android:inputType="number"
                     android:maxLength="10"
-                    android:textColor="@color/blue" />
+                    android:textColor="@color/black" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btn_signup"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="24.0dip"
-                android:background="@color/orange"
+                android:background="@drawable/pay_button_shape"
                 android:padding="12.0dip"
                 android:text="SUBMIT" />
 
-        <TextView
-                android:id="@+id/gologin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="8.0dip"
-                android:clickable="true"
-                android:padding="12.0dip"
-                android:text="Already registered?"
-                android:textColor="@color/white"
-                android:textSize="20.0dip" />
 
         <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btn_log"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="40.0dip"
-                android:background="@color/orange"
+                android:background="@drawable/pay_button_shape"
                 android:padding="12.0dip"
-                android:text="LOGIN" />
+                android:text="Existing User/LOGIN" />
 
     </LinearLayout>
 

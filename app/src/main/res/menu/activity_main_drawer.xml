@@ -10,14 +10,6 @@
                 android:icon="@drawable/ic_menu_gallery"
                 android:title="History"/>
         <item
-                android:id="@+id/qr"
-                android:icon="@drawable/ic_menu_slideshow"
-                android:title="QR Scan"/>
-        <item
-                android:id="@+id/maps_link"
-                android:icon="@drawable/ic_menu_slideshow"
-                android:title="Search parking"/>
-        <item
                 android:id="@+id/signout"
                 android:icon="@drawable/ic_menu_manage"
                 android:title="Sign Out"/>

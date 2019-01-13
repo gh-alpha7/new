@@ -7,35 +7,54 @@
         android:layout_height="match_parent"
         >
 
-    <LinearLayout android:orientation="vertical" android:layout_width="200dp" android:layout_height="200dp"
+    <LinearLayout android:orientation="vertical" android:layout_width="250dp" android:layout_height="300dp"
                    android:layout_margin="20dp"
 
                   tools:layout_editor_absoluteY="0dp" tools:layout_editor_absoluteX="0dp">
         <Spinner
                 android:id="@+id/spinner1"
-                android:layout_width="100dp"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:background="@android:drawable/btn_dropdown"
                 android:spinnerMode="dropdown"
 
                 android:layout_gravity="center_horizontal" android:layout_marginTop="20dp"
-        android:dropDownWidth="80dp"/>
+                android:dropDownWidth="80dp"/>
         <EditText
-                android:layout_width="100dp"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="5"
-                android:id="@+id/editText" android:hint="Time(hr)"
+                android:id="@+id/bookTime" android:hint="Time(hr)"
+                android:layout_centerHorizontal="true" android:layout_alignParentTop="true"
+                android:layout_gravity="center_horizontal" android:textColorLink="@color/black"/>
+
+        <EditText
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:inputType="text|phone"
+                android:ems="5"
+                android:id="@+id/upi" android:hint="paytm no."
+                android:layout_centerHorizontal="true" android:layout_alignParentTop="true"
+                android:layout_gravity="center_horizontal" android:textColorLink="@color/black"/>
+
+        <EditText
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="5"
+                android:id="@+id/amount" android:hint="Amount(₹)"
                 android:layout_centerHorizontal="true" android:layout_alignParentTop="true"
                 android:layout_gravity="center_horizontal" android:textColorLink="@color/black"/>
         <Button
                 android:text="PAY"
                 android:onClick="paytmbutton"
                 android:layout_width="150dp"
-                android:layout_height="wrap_content" android:id="@+id/button2"
+                android:layout_height="wrap_content" android:id="@+id/payButton"
                 android:layout_gravity="center_horizontal"
                 android:textColor="@color/black"
-                android:backgroundTint="#ECF0F1" android:layout_margin="20dp"/>
+                android:backgroundTint="#ECF0F1" android:layout_margin="20dp"
+                android:background="@drawable/pay_button_shape"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

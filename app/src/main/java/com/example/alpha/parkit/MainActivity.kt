@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.nav_header_main.*
 import android.Manifest;
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
+import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable
@@ -86,12 +87,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var industry_type_id:String="Retail"
     var website:String="APPSTAGING"
     var txn_amount:String="1"
+    var dest:LatLng?=null
+    var origin:LatLng?=null
+    var myView:View?=null
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         bookFloat.visibility = View.GONE
+        navigate.visibility=View.GONE
 //
 //        fab.setOnClickListener { view ->
 //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -141,7 +146,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun clickBook(view: View){
         var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        var myView = inflater.inflate(R.layout.activity_spot_book, null)
+        myView = inflater.inflate(R.layout.activity_spot_book, null)
         val popupWindow = PopupWindow(
             myView, // Custom view to show in popup window
             LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
@@ -158,7 +163,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         popupWindow.showAtLocation(layout, Gravity.CENTER, 10, 10)
         print(R.id.spinner1)
-        val spinner: Spinner? = myView.findViewById(R.id.spinner1)
+        val spinner: Spinner? = myView!!.findViewById(R.id.spinner1)
         print(spinner)
         if(spinner!=null) {
             ArrayAdapter.createFromResource(
@@ -193,8 +198,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     fun paytmbutton(view: View){
-        Toast.makeText(this, "pay", Toast.LENGTH_SHORT).show()
-        generateChecksum()
+        val currencyUnit = "INR"
+        var amountEdit:EditText= myView!!.findViewById<EditText>(R.id.amount)
+        var upiEdit:EditText= myView!!.findViewById<EditText>(R.id.upi)
+        var amount= amountEdit.text.toString()
+        var upi=upiEdit.text.toString()
+        if(amount=="" || upi =="") {
+            Toast.makeText(this, amountEdit.text, Toast.LENGTH_SHORT).show()
+        }
+        else {
+
+            val intent = Intent()
+            val bundle = Bundle()
+            bundle.putString(PaytmConstants.TRANSACTION_AMOUNT, amount)
+            bundle.putString(
+                PaytmConstants.PAYEE_MOBILE_NUMBER,
+                upi
+            )
+            bundle.putBoolean(PaytmConstants.IS_MOBILE_NUMBER_EDITABLE, false)
+            bundle.putBoolean(PaytmConstants.IS_AMOUNT_EDITABLE, false)
+            intent.component = ComponentName("net.one97.paytm", "net.one97.paytm.AJRJarvisSplash")
+            intent.putExtra(PaytmConstants.PAYMENT_MODE, 1)
+            intent.putExtra(PaytmConstants.MERCHANT_DATA, bundle)
+            startActivityForResult(intent, 103)
+        }
     }
 
     fun setUserData(){
@@ -221,6 +248,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             })
 
+    }
+
+    fun clickNav(view: View){
+        val intent = Intent(
+            android.content.Intent.ACTION_VIEW,
+            Uri.parse("http://maps.google.com/maps?saddr="+origin!!.latitude.toString()+","+origin!!.longitude.toString()+"&daddr="+dest!!.latitude.toString()+","+dest!!.longitude.toString())
+        )
+        startActivity(intent)
     }
 
 
@@ -261,21 +296,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 startActivity(intent)
             }
-            R.id.qr -> {
-                val intent = Intent(this, PaymentActivity::class.java).apply {
 
-                }
-                startActivity(intent)
-
-            }
             R.id.signout -> {
                 signOut()
             }
-            R.id.maps_link -> {
-                val i = Intent(this, MapsActivity::class.java)
-                //val intent = Intent(this, maps::class.java)
-                startActivity(i)
-            }
+
             R.id.nav_share -> {
                 try {
                     val i = Intent(Intent.ACTION_SEND)
@@ -318,38 +343,61 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         startActivity(intent)
 
     }
-    fun qrcodeclick(view: View){
-        try {
-
-            val intent = Intent("com.google.zxing.client.android.SCAN")
-            intent.putExtra("SCAN_MODE", "QR_CODE_MODE") // "PRODUCT_MODE for bar codes
-            intent.putExtra("PROMPT_MESSAGE", "Point the camera at the code")
-            intent.putExtra("SCAN_CAMERA_ID", 1)
-            startActivityForResult(intent, 0)
-
-        } catch (e: Exception) {
-
-            var marketUri = Uri.parse("market://details?id=com.google.zxing.client.android")
-            val marketIntent = Intent(Intent.ACTION_VIEW, marketUri)
-            startActivity(marketIntent)
-
-        }
-    }
+//    fun qrcodeclick(view: View){
+//        try {
+//
+//            val intent = Intent("com.google.zxing.client.android.SCAN")
+//            intent.putExtra("SCAN_MODE", "QR_CODE_MODE") // "PRODUCT_MODE for bar codes
+//            intent.putExtra("PROMPT_MESSAGE", "Point the camera at the code")
+//            intent.putExtra("SCAN_CAMERA_ID", 1)
+//            startActivityForResult(intent, 0)
+//
+//        } catch (e: Exception) {
+//
+//            var marketUri = Uri.parse("market://details?id=com.google.zxing.client.android")
+//            val marketIntent = Intent(Intent.ACTION_VIEW, marketUri)
+//            startActivity(marketIntent)
+//
+//        }
+//    }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 0) {
 
-            if (resultCode == RESULT_OK) {
-                val contents = data!!.getStringExtra("SCAN_RESULT")
-                Toast.makeText(this, "scanned", Toast.LENGTH_SHORT).show()// display toast
-                generateChecksum()
-            }
-            if (resultCode == RESULT_CANCELED) {
-                //handle cancel
+        if(data!=null) {
+
+            var res = data.getStringExtra("response");
+            var search = "SUCCESS";
+            if (res.toLowerCase().contains(search.toLowerCase())) {
+                Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
             }
         }
+//        if (requestCode == 0) {
+//
+//            if (resultCode == RESULT_OK) {
+//                val contents = data!!.getStringExtra("SCAN_RESULT")
+//                val currencyUnit = "INR"
+//                var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+//                var myView = inflater.inflate(R.layout.activity_spot_book, null)
+//                var amountEdit:EditText= myView.findViewById<EditText>(R.id.amount)
+//                var upiEdit:EditText= myView.findViewById<EditText>(R.id.upi)
+//                var amount= amountEdit.text.toString()
+//                var upi=upiEdit.text.toString()
+//                Toast.makeText(this, "scanned", Toast.LENGTH_SHORT).show()// display toast
+//                val uri = Uri.parse(
+//                    "upi://pay?pa=" + upi + "&am=" + amount + "&cu=" + currencyUnit
+//                )
+//
+//                val intent = Intent(Intent.ACTION_VIEW, uri)
+//                startActivityForResult(intent, 1)
+//            }
+//            if (resultCode == RESULT_CANCELED) {
+//                //handle cancel
+//            }
+//        }
     }
     private val onMyLocationButtonClickListener = GoogleMap.OnMyLocationButtonClickListener {
         mMap.setMinZoomPreference(15f)
@@ -411,12 +459,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(this, marker.position.toString(), Toast.LENGTH_SHORT).show()// display toast
 
             bookFloat.visibility = View.VISIBLE
+            navigate.visibility=View.VISIBLE
 
-            var origin:LatLng = this!!.curLatLng!!;
-            var dest:LatLng = marker.position;
+            origin = this!!.curLatLng!!;
+            dest = marker.position;
 
             // Getting URL to the Google Directions API
-            var url:String = getDirectionsUrl(origin, dest)
+            var url:String = getDirectionsUrl(origin!!, dest!!)
             print(url)
             val path: MutableList<List<LatLng>> = ArrayList()
             val directionsRequest = object : StringRequest(

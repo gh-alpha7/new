@@ -83,7 +83,7 @@
                   android:label="Signup">
         </activity>
         <activity android:name=".LoginActivity"
-                  android:label="Login">
+                  android:label="ParkIt">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
