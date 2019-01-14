@@ -90,11 +90,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var dest:LatLng?=null
     var origin:LatLng?=null
     var myView:View?=null
+    var popupWindow:PopupWindow?=null
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+
         bookFloat.visibility = View.GONE
         navigate.visibility=View.GONE
 //
@@ -147,21 +150,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun clickBook(view: View){
         var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         myView = inflater.inflate(R.layout.activity_spot_book, null)
-        val popupWindow = PopupWindow(
+        popupWindow = PopupWindow(
             myView, // Custom view to show in popup window
             LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
             LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
             true
         )
-        popupWindow.setOutsideTouchable(false);
+        popupWindow!!.setOutsideTouchable(false);
         var d: Drawable = ColorDrawable(Color.WHITE)
-        popupWindow.setBackgroundDrawable(d)
+        popupWindow!!.setBackgroundDrawable(d)
 
 
         var layout: LinearLayout = LinearLayout(this)
-        popupWindow.elevation=20f
+        popupWindow!!.elevation=20f
 
-        popupWindow.showAtLocation(layout, Gravity.CENTER, 10, 10)
+        popupWindow!!.showAtLocation(layout, Gravity.CENTER, 10, 10)
         print(R.id.spinner1)
         val spinner: Spinner? = myView!!.findViewById(R.id.spinner1)
         print(spinner)
@@ -207,7 +210,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(this, amountEdit.text, Toast.LENGTH_SHORT).show()
         }
         else {
-
+            popupWindow!!.dismiss()
             val intent = Intent()
             val bundle = Bundle()
             bundle.putString(PaytmConstants.TRANSACTION_AMOUNT, amount)
@@ -221,6 +224,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             intent.putExtra(PaytmConstants.PAYMENT_MODE, 1)
             intent.putExtra(PaytmConstants.MERCHANT_DATA, bundle)
             startActivityForResult(intent, 103)
+
         }
     }
 
@@ -413,6 +417,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 location.latitude,
                 location.longitude
             )
+        )
+
+        curLatLng=LatLng(
+            location.latitude,
+            location.longitude
         )
 //
 //        circleOptions.radius(200.0)

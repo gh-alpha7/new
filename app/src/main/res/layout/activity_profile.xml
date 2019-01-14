@@ -9,19 +9,19 @@
 
     <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent">
 
-        <ImageView
-                android:layout_width="103dp"
-                android:layout_height="102dp" app:srcCompat="@mipmap/ic_launcher" android:id="@+id/imageView5"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="44dp"
-                android:layout_alignParentBottom="true" android:layout_marginBottom="365dp"
-                android:layout_alignParentStart="true" android:layout_marginLeft="141dp"
-                android:layout_marginStart="141dp" android:layout_alignParentLeft="true"
-                android:layout_alignParentEnd="true" android:layout_alignParentRight="true"
-                android:layout_marginRight="140dp" android:layout_marginEnd="140dp"/>
+        <TextView android:layout_width="120dp"
+                  android:layout_height="120dp"
+                  android:background="@drawable/profile_pic_back"
+                  android:text="S"
+                  android:textAlignment="center"
+                  android:textSize="70dp"
+                  android:textColor="@color/white"
+                  android:layout_marginTop="105dp"
+                  android:gravity="center"
+                  android:layout_marginLeft="150dp" android:id="@+id/profilePic"/>
         <TextView
                 android:text="shubhamsngh067@gmail.com"
-                android:onClick="emailClick"
+
                 android:layout_width="match_parent"
                 android:layout_height="36dp" android:id="@+id/email" android:layout_alignParentTop="true"
                 android:layout_marginTop="398dp" android:textSize="20sp"
@@ -40,7 +40,7 @@
                 android:contentDescription="shubhamsngh067@gmail.com"/>
         <TextView
                 android:text="8862944302"
-                android:onClick="phNoClick"
+
                 android:layout_width="match_parent"
                 android:layout_height="36dp" android:id="@+id/phone" android:layout_alignParentTop="true"
                 android:layout_marginTop="463dp" android:textSize="20sp"
@@ -57,7 +57,7 @@
         />
         <TextView
                 android:text="Singh"
-                android:onClick="lastNameClick"
+
                 android:layout_width="match_parent"
                 android:layout_height="36dp" android:id="@+id/lastName" android:layout_alignParentTop="true"
                 android:layout_marginTop="331dp" android:textSize="20sp"
@@ -82,7 +82,7 @@
         />
         <TextView
                 android:text="Subham"
-                android:onClick="firstNameClick"
+
                 android:layout_width="match_parent"
                 android:layout_height="36dp" android:id="@+id/firstName" android:layout_alignParentTop="true"
                 android:layout_marginTop="263dp" android:textSize="20sp"

@@ -1,10 +1,13 @@
 package com.example.alpha.parkit;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -52,7 +55,9 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
-
+        ActivityCompat.requestPermissions(LoginActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                1);
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {
