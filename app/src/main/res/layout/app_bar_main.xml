@@ -39,6 +39,24 @@
     <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="100dp"
+            android:layout_marginRight="10dp">
+
+        <android.support.design.widget.FloatingActionButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:id="@+id/navFloatingRefresh"
+                app:backgroundTint="@color/colorPrimary" android:layout_gravity="bottom"
+                android:layout_margin="10dp"
+                android:onClick="clickRefresh"
+                android:src="@drawable/refresh"
+        />
+    </FrameLayout>
+    <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/navigate"
             android:layout_gravity="bottom|left"
             android:layout_marginBottom="80dp" android:layout_marginLeft="10dp">
@@ -51,7 +69,6 @@
                 android:onClick="clickNav"
                 android:src="@drawable/navigation"
         />
-
 
     </FrameLayout>
     <FrameLayout
@@ -77,6 +94,8 @@
                 android:elevation="16dp"
                 android:textColor="@color/white"
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+
     </FrameLayout>
 
 </android.support.design.widget.CoordinatorLayout>

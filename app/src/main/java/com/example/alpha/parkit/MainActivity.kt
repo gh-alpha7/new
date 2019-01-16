@@ -91,6 +91,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var origin:LatLng?=null
     var myView:View?=null
     var popupWindow:PopupWindow?=null
+
+    lateinit var db: FirebaseFirestore
+    lateinit var user: FirebaseAuth
+
+    class location{
+        lateinit var Location: Place
+        lateinit var id: String
+        lateinit var name: String
+    }
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,6 +134,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragmentManager.findFragmentById(place_autocomplete_fragment) as PlaceAutocompleteFragment
 
 
+        db = FirebaseFirestore.getInstance()
+        user = FirebaseAuth.getInstance()
+
 
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
@@ -145,6 +157,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
     }
+
+    fun clickRefresh(view: View){
+        mMap.clear()
+        populatePage()
+    }
+
+
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun clickBook(view: View){
@@ -446,6 +465,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
+    fun populatePage(){
+        Toast.makeText(this@MainActivity, "populating", Toast.LENGTH_SHORT).show()
+        db.collection("points")
+            .get().addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val jsonObject = document.data
+                    //Toast.makeText(this@MainActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    //var place: Place = Place.
+                    if (jsonObject!!.containsKey("Lat")) {
+                        var place:LatLng =  LatLng(jsonObject.get("Lat").toString().toDouble(),jsonObject.get("Lon").toString().toDouble())
+                        //fnameHold.setText(jsonObject.get("uname").toString())
+                        //Toast.makeText(this@MainActivity, fnameHold.text, Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@MainActivity, jsonObject.get("uname").toString(), Toast.LENGTH_SHORT).show()
+                        //arrayOfMarker=arrayOfMarker.plus(place.toString())
+                        mMap.addMarker(MarkerOptions()
+                            .position(place)
+                            .title(jsonObject.get("Name").toString())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
+
+                    }
+
+                }
+            }
+            .addOnFailureListener { exception ->
+
+                Toast.makeText(this@MainActivity, "Error getting documents: "+exception, Toast.LENGTH_SHORT).show()
+            }
+
+    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -453,6 +501,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
         mMap.setOnMyLocationClickListener(onMyLocationClickListener)
 
+        populatePage()
 //        mMap.setOnMapLongClickListener {
 //
 ////            mMap.clear()
