@@ -4,6 +4,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_profile.*
 
 class ProfileActivity : AppCompatActivity() {
@@ -12,7 +13,20 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setTitle("Profile")
         setContentView(R.layout.activity_profile)
-        val name = intent.getStringExtra("name")
+        var fname= findViewById<TextView>(R.id.firstName)
+        var email=findViewById<TextView>(R.id.email)
+        var sname=findViewById<TextView>(R.id.lastName)
+        var phno=findViewById<TextView>(R.id.phone)
+        var name=intent.getStringExtra("name")
+        var fname1=name.split("\\s".toRegex())[0]
+        var sname1:String?="***"
+        if(name.split("\\s".toRegex()).size==2) {
+            sname1 = name.split("\\s".toRegex())[1]
+        }
+        email.text=intent.getStringExtra("email")
+        phno.text = intent.getStringExtra("phNo")
+        fname.text=fname1
+        sname.text=sname1
     }
 
     fun emailClick(view: View){

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -90,7 +91,7 @@ public class LoginActivity extends Activity {
         FirebaseAuth.getInstance().signOut();
     }
 
-    public void signIn(String email, String password) {
+    public void signIn(final String email, String password) {
         progressDialog.show();
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -103,7 +104,12 @@ public class LoginActivity extends Activity {
                             Toast.makeText(LoginActivity.this, "Logged in",
                                     Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            Intent intent=new Intent(LoginActivity.this, MainActivity.class);
+                            SharedPreferences sharedpreferences = getSharedPreferences("com.example.alpha.alphaPark", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedpreferences.edit();
+                            editor.putString("Email", email);
+                            editor.commit();
+                            startActivity(intent);
                             finish();
                         } else {
                             // If sign in fails, display a message to the user.
@@ -114,4 +120,6 @@ public class LoginActivity extends Activity {
                     }
                 });
     }
+
+
 }

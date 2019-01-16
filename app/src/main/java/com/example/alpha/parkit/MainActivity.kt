@@ -91,22 +91,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var origin:LatLng?=null
     var myView:View?=null
     var popupWindow:PopupWindow?=null
-
+    var vehicle:String="Bike"
+    var emaiL:String?=""
+    var arrayOfMarker:Array<String> = arrayOf()
+    var selectedMarker:LatLng?=null
     lateinit var db: FirebaseFirestore
-    lateinit var user: FirebaseAuth
 
-    class location{
-        lateinit var Location: Place
-        lateinit var id: String
-        lateinit var name: String
-    }
+
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-
+        db = FirebaseFirestore.getInstance()
+        val sharedPref = this.getSharedPreferences("com.example.alpha.alphaPark", 0)
+        emaiL = sharedPref.getString("Email", "");
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                1
+            )
+        }
         bookFloat.visibility = View.GONE
         navigate.visibility=View.GONE
 //
@@ -134,9 +141,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragmentManager.findFragmentById(place_autocomplete_fragment) as PlaceAutocompleteFragment
 
 
-        db = FirebaseFirestore.getInstance()
-        user = FirebaseAuth.getInstance()
-
 
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
@@ -158,59 +162,94 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    fun clickRefresh(view: View){
-        mMap.clear()
-        populatePage()
+
+    fun populatePage(){
+        db.collection("points")
+            .get().addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val jsonObject = document.data
+                    //Toast.makeText(this@MainActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    //var place: Place = Place.
+                    if (jsonObject!!.containsKey("Lat")) {
+                        var place:LatLng =  LatLng(jsonObject.get("Lat").toString().toDouble(),jsonObject.get("Lon").toString().toDouble())
+                        //fnameHold.setText(jsonObject.get("uname").toString())
+                        //Toast.makeText(this@MainActivity, fnameHold.text, Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@MainActivity, jsonObject.get("uname").toString(), Toast.LENGTH_SHORT).show()
+                        arrayOfMarker=arrayOfMarker.plus(place.toString())
+                        mMap.addMarker(MarkerOptions()
+                            .position(place)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
+
+                    }
+                    if (jsonObject.containsKey("mail")) {
+                        //emailHold.text =  jsonObject.get("mail").toString()
+                        //edit_email.setKeyListener(null);
+                    }
+
+                }
+            }
+            .addOnFailureListener { exception ->
+
+                Toast.makeText(this@MainActivity, "Error getting documents: "+exception, Toast.LENGTH_SHORT).show()
+            }
+
     }
 
 
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun clickBook(view: View){
-        var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        myView = inflater.inflate(R.layout.activity_spot_book, null)
-        popupWindow = PopupWindow(
-            myView, // Custom view to show in popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
-            true
-        )
-        popupWindow!!.setOutsideTouchable(false);
-        var d: Drawable = ColorDrawable(Color.WHITE)
-        popupWindow!!.setBackgroundDrawable(d)
+
+        var pos=selectedMarker.toString()
+        var flag:Boolean=arrayOfMarker.contains(pos)
+
+        if(flag) {
+            var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            myView = inflater.inflate(R.layout.activity_spot_book, null)
+            popupWindow = PopupWindow(
+                myView, // Custom view to show in popup window
+                LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+                LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
+                true
+            )
+            popupWindow!!.setOutsideTouchable(false);
+            var d: Drawable = ColorDrawable(Color.WHITE)
+            popupWindow!!.setBackgroundDrawable(d)
 
 
-        var layout: LinearLayout = LinearLayout(this)
-        popupWindow!!.elevation=20f
+            var layout: LinearLayout = LinearLayout(this)
+            popupWindow!!.elevation = 20f
 
-        popupWindow!!.showAtLocation(layout, Gravity.CENTER, 10, 10)
-        print(R.id.spinner1)
-        val spinner: Spinner? = myView!!.findViewById(R.id.spinner1)
-        print(spinner)
-        if(spinner!=null) {
-            ArrayAdapter.createFromResource(
-                this,
-                R.array.vehicle,
-                android.R.layout.simple_spinner_item
-            ).also { adapter ->
-                // Specify the layout to use when the list of choices appears
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                // Apply the adapter to the spinner
-                spinner.adapter = adapter
-            }
-            spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-                override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long){
-                    // Display the selected item text on text view
+            popupWindow!!.showAtLocation(layout, Gravity.CENTER, 10, 10)
+            print(R.id.spinner1)
+            val spinner: Spinner? = myView!!.findViewById(R.id.spinner1)
+            print(spinner)
+            if (spinner != null) {
+                ArrayAdapter.createFromResource(
+                    this,
+                    R.array.vehicle,
+                    android.R.layout.simple_spinner_item
+                ).also { adapter ->
+                    // Specify the layout to use when the list of choices appears
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    // Apply the adapter to the spinner
+                    spinner.adapter = adapter
+                }
+                spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                        // Display the selected item text on text view
+                        vehicle = parent.getItemAtPosition(position) as String
 
+                    }
 
+                    override fun onNothingSelected(parent: AdapterView<*>) {
+                        // Another interface callback
+                        vehicle = "Bike"
+                    }
                 }
 
-                override fun onNothingSelected(parent: AdapterView<*>){
-                    // Another interface callback
-                }
+
             }
-
-
         }
 
 
@@ -226,7 +265,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var amount= amountEdit.text.toString()
         var upi=upiEdit.text.toString()
         if(amount=="" || upi =="") {
-            Toast.makeText(this, amountEdit.text, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please fill fields", Toast.LENGTH_SHORT).show()
         }
         else {
             popupWindow!!.dismiss()
@@ -248,10 +287,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun setUserData(){
-        var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        var myView = inflater.inflate(R.layout.nav_header_main, null)
-        val fnameHold = myView.findViewById(R.id.main_page_uname) as TextView
-        val emailHold = myView.findViewById(R.id.main_page_email) as TextView
+
+
+        var uemail = findViewById<View>(R.id.nav_view) as NavigationView
+        var navHead = uemail.getHeaderView(0)
+        var emailHold = navHead.findViewById(R.id.main_page_email) as TextView
+        var fnameHold = navHead.findViewById(R.id.main_page_uname) as TextView
+        var profileText=navHead.findViewById(R.id.navProfilePic) as TextView
         FirebaseFirestore.getInstance().collection("Users")
             .document(FirebaseAuth.getInstance().currentUser!!.uid)
             .get()
@@ -260,7 +302,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (!task.result!!.exists()) return@OnCompleteListener
                     val jsonObject = task.result!!.data
                     if (jsonObject!!.containsKey("uname")) {
-                        fnameHold.setText(jsonObject.get("uname").toString());
+                        var nameText=jsonObject.get("uname").toString()
+                        fnameHold.text=nameText
+                        var text=fnameHold.text.toString()
+                        profileText.text=Character.toString(nameText[0])
+                        print(text)
                     }
                     if (jsonObject.containsKey("mail")) {
                         emailHold.setText(jsonObject.get("mail").toString());
@@ -356,14 +402,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun profileImageClick(view: View) {
+        var name:String="subham"
+        var email:String=" "
+        var phno:String=" "
+        db.collection("Users")
+            .whereEqualTo("mail", emaiL)
+            .get().addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val jsonObject = document.data
+                    //Toast.makeText(this@MainActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    //var place: Place = Place.
+                    if (jsonObject!!.containsKey("uname")) {
+                        name=jsonObject.get("uname").toString()
+                        email=jsonObject.get("mail").toString()
+                        phno=jsonObject.get("phno").toString()
+                    }
+                }
+                val intent = Intent(this, ProfileActivity::class.java).apply {
+                    putExtra("name", name)
+                    putExtra("email", email)
+                    putExtra("phNo", phno)
+                }
+                startActivity(intent)
+            }
 
-        val intent = Intent(this, ProfileActivity::class.java).apply {
-            putExtra("name", "Subham Singh")
-            putExtra("email", "shubhamsngh067@gmail.com")
-            putExtra("phNo", "8862944302")
-            putExtra("pass", "******")
-        }
-        startActivity(intent)
 
     }
 //    fun qrcodeclick(view: View){
@@ -465,35 +527,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
-    fun populatePage(){
-        Toast.makeText(this@MainActivity, "populating", Toast.LENGTH_SHORT).show()
-        db.collection("points")
-            .get().addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val jsonObject = document.data
-                    //Toast.makeText(this@MainActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
-                    //var place: Place = Place.
-                    if (jsonObject!!.containsKey("Lat")) {
-                        var place:LatLng =  LatLng(jsonObject.get("Lat").toString().toDouble(),jsonObject.get("Lon").toString().toDouble())
-                        //fnameHold.setText(jsonObject.get("uname").toString())
-                        //Toast.makeText(this@MainActivity, fnameHold.text, Toast.LENGTH_SHORT).show()
-                        //Toast.makeText(this@MainActivity, jsonObject.get("uname").toString(), Toast.LENGTH_SHORT).show()
-                        //arrayOfMarker=arrayOfMarker.plus(place.toString())
-                        mMap.addMarker(MarkerOptions()
-                            .position(place)
-                            .title(jsonObject.get("Name").toString())
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
-
-                    }
-
-                }
-            }
-            .addOnFailureListener { exception ->
-
-                Toast.makeText(this@MainActivity, "Error getting documents: "+exception, Toast.LENGTH_SHORT).show()
-            }
-
-    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -501,7 +534,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
         mMap.setOnMyLocationClickListener(onMyLocationClickListener)
 
-        populatePage()
 //        mMap.setOnMapLongClickListener {
 //
 ////            mMap.clear()
@@ -512,6 +544,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         mMap.setOnMarkerClickListener { marker ->
+            selectedMarker=marker.position
             print(marker.id)
             // if marker source is clicked
             Toast.makeText(this, marker.position.toString(), Toast.LENGTH_SHORT).show()// display toast
@@ -581,11 +614,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    fun clickRefresh(view: View){
+        mMap.clear()
+        populatePage()
+    }
+
     private fun showDefaultLocation() {
 
         val bangalore = LatLng(12.9716, 77.5946)
         val ban1=LatLng(12.98,77.1)
         mMap.setMinZoomPreference(15f)
+        populatePage()
 //        mMap.addMarker(MarkerOptions().position(bangalore).title("Marker in Bangalore"))
 //        mMap.addMarker(MarkerOptions()
 //            .position(bangalore)

@@ -28,13 +28,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop= "@dimen/nav_header_vertical_spacing"
             android:id="@+id/main_page_uname"
-            android:text="Subham Singh"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="shubhamsngh067@gmail.com"
             android:id="@+id/main_page_email"/>
 
 </LinearLayout>
