@@ -66,6 +66,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback,LocationListener {
 
@@ -96,14 +97,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var arrayOfMarker:Array<String> = arrayOf()
     var selectedMarker:LatLng?=null
     lateinit var db: FirebaseFirestore
-
+    lateinit var user: FirebaseAuth
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
         db = FirebaseFirestore.getInstance()
+        user = FirebaseAuth.getInstance()
         val sharedPref = this.getSharedPreferences("com.example.alpha.alphaPark", 0)
         emaiL = sharedPref.getString("Email", "");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
@@ -528,6 +531,80 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    fun getOwnerDetails(ownerID: String): HashMap<String,Any>{
+        val jsonObje= HashMap<String, Any>()
+        db.collection("Users").document(ownerID).get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("Name")) {
+                        jsonObje.set("Name",jsonObject.containsKey("Name"))
+                    }
+                    if (jsonObject.containsKey("Owner")) {
+                        //edit_email.setKeyListener(null);
+                        jsonObje.set("Owner",jsonObject.containsKey("Owner"))
+                    }
+                    if (jsonObject.containsKey("ID")) {
+                        //edit_email.setKeyListener(null);
+                        jsonObje.set("ID",jsonObject.containsKey("ID"))
+                    }
+
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+
+                }
+            })
+        return jsonObje
+    }
+
+
+    fun getPlaceDetails(placeID: String): HashMap<String,Any>{
+        val jsonObje= HashMap<String, Any>()
+        db.collection("places").document(placeID).get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("Name")) {
+                        jsonObje.set("Name",jsonObject.containsKey("Name"))
+                    }
+                    if (jsonObject.containsKey("Owner")) {
+                        //edit_email.setKeyListener(null);
+                        jsonObje.set("Owner",jsonObject.containsKey("Owner"))
+                    }
+                    if (jsonObject.containsKey("ID")) {
+                        //edit_email.setKeyListener(null);
+                        jsonObje.set("ID",jsonObject.containsKey("ID"))
+                    }
+
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+        return jsonObje
+    }
+
+
+    fun setBookingDetails(ownerID: String,placeID: String): Boolean{
+        val items= HashMap<String, Any>()
+        var retur: Boolean = true
+        items.put("user",user.currentUser!!.uid)
+        items.put("owner",ownerID)
+        items.put("place",placeID)
+
+        db.collection("Bookings").add(items)
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    retur = true
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+                    retur = false
+                }
+            })
+        return retur
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         enableMyLocationIfPermitted()
@@ -547,7 +624,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             selectedMarker=marker.position
             print(marker.id)
             // if marker source is clicked
-            Toast.makeText(this, marker.position.toString(), Toast.LENGTH_SHORT).show()// display toast
+            Toast.makeText(this, marker.position.latitude.toString()+marker.position.longitude.toString(), Toast.LENGTH_SHORT).show()// display toast
 
             bookFloat.visibility = View.VISIBLE
             navigate.visibility=View.VISIBLE
@@ -581,18 +658,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val requestQueue = Volley.newRequestQueue(this)
             requestQueue.add(directionsRequest)
 
-
-
-
-
-
             true
         }
         mMap.uiSettings.isZoomControlsEnabled = true
-        mMap.setMinZoomPreference(11F)
-        showDefaultLocation()
-
-
+        //mMap.setMinZoomPreference(11F)
+        //showDefaultLocation()
+        populatePage()
     }
 
 
