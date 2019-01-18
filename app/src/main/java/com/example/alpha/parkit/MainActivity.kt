@@ -623,12 +623,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mMap.setOnMarkerClickListener { marker ->
             selectedMarker=marker.position
             print(marker.id)
+            val placeID: String = marker.position.latitude.toString()+marker.position.longitude.toString()
             // if marker source is clicked
-            Toast.makeText(this, marker.position.latitude.toString()+marker.position.longitude.toString(), Toast.LENGTH_SHORT).show()// display toast
+            Toast.makeText(this, placeID, Toast.LENGTH_SHORT).show()// display toast
 
             bookFloat.visibility = View.VISIBLE
             navigate.visibility=View.VISIBLE
-
+            bookFloat.setOnClickListener(View.OnClickListener {
+                //startBooking(placeID)
+                Toast.makeText(this, "startBooking", Toast.LENGTH_SHORT).show()// display toast
+            })
             origin = this!!.curLatLng!!;
             dest = marker.position;
 
@@ -646,10 +650,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     val steps = legs.getJSONObject(0).getJSONArray("steps")
                     for (i in 0 until steps.length()) {
                         val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
-                        path.add(PolyUtil.decode(points))
+                        //path.add(PolyUtil.decode(points))
                     }
                     for (i in 0 until path.size) {
-                        mMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.rgb(93, 173, 226)))
+                        //mMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.rgb(93, 173, 226)))
                     }
 
                 }, Response.ErrorListener {
