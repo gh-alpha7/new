@@ -59,6 +59,7 @@ public class LoginActivity extends Activity {
         ActivityCompat.requestPermissions(LoginActivity.this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 1);
+        ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser != null) {

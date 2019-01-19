@@ -4,9 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
-import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
@@ -16,10 +14,8 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment
 import com.google.android.gms.location.places.ui.PlaceSelectionListener
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.nav_header_main.*
 import android.Manifest;
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager;
@@ -28,16 +24,11 @@ import android.graphics.drawable.Drawable
 import android.location.Location;
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.AsyncTask
 import android.os.Build
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.requestPermissions
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
-import android.text.Html
-import android.util.Log
 import android.view.*
 import android.widget.*
 import com.android.volley.Request
@@ -50,21 +41,13 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.maps.android.PolyUtil
 import com.paytm.pgsdk.PaytmOrder
 import com.paytm.pgsdk.PaytmPGService
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
+import java.security.acl.Owner
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -94,8 +77,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var popupWindow:PopupWindow?=null
     var vehicle:String="Bike"
     var emaiL:String?=""
+    var OwnerId:String=""
+    var OwnerPhone:String=""
     var arrayOfMarker:Array<String> = arrayOf()
     var selectedMarker:LatLng?=null
+    var upi:TextView?=null
     lateinit var db: FirebaseFirestore
     lateinit var user: FirebaseAuth
 
@@ -109,7 +95,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         user = FirebaseAuth.getInstance()
         val sharedPref = this.getSharedPreferences("com.example.alpha.alphaPark", 0)
         emaiL = sharedPref.getString("Email", "");
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
@@ -117,8 +103,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 1
             )
         }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                1
+            )
+        }
         bookFloat.visibility = View.GONE
         navigate.visibility=View.GONE
+        var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        myView = inflater.inflate(R.layout.activity_spot_book, null)
 //
 //        fab.setOnClickListener { view ->
 //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -207,8 +203,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var flag:Boolean=arrayOfMarker.contains(pos)
 
         if(flag) {
-            var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            myView = inflater.inflate(R.layout.activity_spot_book, null)
+
             popupWindow = PopupWindow(
                 myView, // Custom view to show in popup window
                 LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
@@ -226,6 +221,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             popupWindow!!.showAtLocation(layout, Gravity.CENTER, 10, 10)
             print(R.id.spinner1)
             val spinner: Spinner? = myView!!.findViewById(R.id.spinner1)
+
             print(spinner)
             if (spinner != null) {
                 ArrayAdapter.createFromResource(
@@ -452,17 +448,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
+        print(requestCode)
+        print(resultCode)
+        print(data)
         if(data!=null) {
 
-            var res = data.getStringExtra("response");
-            var search = "SUCCESS";
-            if (res.toLowerCase().contains(search.toLowerCase())) {
+//            var res = data.getStringExtra("response");
+//            var search = "SUCCESS";
+//            if (res!!.toLowerCase().contains(search.toLowerCase())) {
                 Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
-            }
+//            } else {
+//                Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
+//            }
         }
+        else{
+            Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
+        }
+
+
 //        if (requestCode == 0) {
 //
 //            if (resultCode == RESULT_OK) {
@@ -493,7 +496,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private val onMyLocationClickListener = GoogleMap.OnMyLocationClickListener { location ->
-        mMap.setMinZoomPreference(12f)
+        mMap.setMinZoomPreference(15f)
 
         val circleOptions = CircleOptions()
         circleOptions.center(
@@ -531,23 +534,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun getOwnerDetails(ownerID: String): HashMap<String,Any>{
-        val jsonObje= HashMap<String, Any>()
-        db.collection("Users").document(ownerID).get()
+    fun getOwnerId(Location : String) {
+        print(Location)
+        db.collection("points").document(Location).get()
             .addOnCompleteListener(OnCompleteListener { task ->
                 if (task.isSuccessful) {
                     if (!task.result!!.exists()) return@OnCompleteListener
                     val jsonObject = task.result!!.data
-                    if (jsonObject!!.containsKey("Name")) {
-                        jsonObje.set("Name",jsonObject.containsKey("Name"))
+                    if (jsonObject!!.containsKey("Owner")) {
+                        OwnerId= jsonObject.get("Owner").toString()
+                        getOwnerDetails((OwnerId))
                     }
-                    if (jsonObject.containsKey("Owner")) {
-                        //edit_email.setKeyListener(null);
-                        jsonObje.set("Owner",jsonObject.containsKey("Owner"))
-                    }
-                    if (jsonObject.containsKey("ID")) {
-                        //edit_email.setKeyListener(null);
-                        jsonObje.set("ID",jsonObject.containsKey("ID"))
+
+
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+
+
+    }
+
+    fun getOwnerDetails(ownerID: String) {
+        print(ownerID)
+//        val jsonObje= HashMap<String, Any>()
+        db.collection("Users").document(ownerID.toString()).get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("phno")) {
+                        OwnerPhone=jsonObject.get("phno").toString()
+                        upi=myView!!.findViewById<EditText>(R.id.upi)
+
+
+                        upi!!.setText(OwnerPhone)
                     }
 
                 } else {
@@ -555,7 +576,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 }
             })
-        return jsonObje
+
     }
 
 
@@ -608,9 +629,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         enableMyLocationIfPermitted()
+        populatePage()
         mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
         mMap.setOnMyLocationClickListener(onMyLocationClickListener)
-
+        mMap.setMinZoomPreference(15F)
 //        mMap.setOnMapLongClickListener {
 //
 ////            mMap.clear()
@@ -622,6 +644,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         mMap.setOnMarkerClickListener { marker ->
             selectedMarker=marker.position
+            getOwnerId(selectedMarker!!.latitude.toString()+selectedMarker!!.longitude.toString())
             print(marker.id)
             val placeID: String = marker.position.latitude.toString()+marker.position.longitude.toString()
             // if marker source is clicked
@@ -639,35 +662,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // Getting URL to the Google Directions API
             var url:String = getDirectionsUrl(origin!!, dest!!)
             print(url)
-            val path: MutableList<List<LatLng>> = ArrayList()
-            val directionsRequest = object : StringRequest(
-                Request.Method.GET, url, Response.Listener<String> {
-                        response ->
-                    val jsonResponse = JSONObject(response)
-                    // Get routes
-                    val routes = jsonResponse.getJSONArray("routes")
-                    val legs = routes.getJSONObject(0).getJSONArray("legs")
-                    val steps = legs.getJSONObject(0).getJSONArray("steps")
-                    for (i in 0 until steps.length()) {
-                        val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
-                        //path.add(PolyUtil.decode(points))
-                    }
-                    for (i in 0 until path.size) {
-                        //mMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.rgb(93, 173, 226)))
-                    }
-
-                }, Response.ErrorListener {
-                        _ ->
-                }){}
-            val requestQueue = Volley.newRequestQueue(this)
-            requestQueue.add(directionsRequest)
+//            val path: MutableList<List<LatLng>> = ArrayList()
+//            val directionsRequest = object : StringRequest(
+//                Request.Method.GET, url, Response.Listener<String> {
+//                        response ->
+//                    val jsonResponse = JSONObject(response)
+//                    // Get routes
+//                    val routes = jsonResponse.getJSONArray("routes")
+//                    val legs = routes.getJSONObject(0).getJSONArray("legs")
+//                    val steps = legs.getJSONObject(0).getJSONArray("steps")
+//                    for (i in 0 until steps.length()) {
+//                        val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
+//                        //path.add(PolyUtil.decode(points))
+//                    }
+//                    for (i in 0 until path.size) {
+//                        //mMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.rgb(93, 173, 226)))
+//                    }
+//
+//                }, Response.ErrorListener {
+//                        _ ->
+//                }){}
+//            val requestQueue = Volley.newRequestQueue(this)
+//            requestQueue.add(directionsRequest)
 
             true
         }
         mMap.uiSettings.isZoomControlsEnabled = true
         //mMap.setMinZoomPreference(11F)
         //showDefaultLocation()
-        populatePage()
+
     }
 
 
@@ -698,8 +721,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val bangalore = LatLng(12.9716, 77.5946)
         val ban1=LatLng(12.98,77.1)
-        mMap.setMinZoomPreference(15f)
-        populatePage()
+//        mMap.setMinZoomPreference(15f)
+
 //        mMap.addMarker(MarkerOptions().position(bangalore).title("Marker in Bangalore"))
 //        mMap.addMarker(MarkerOptions()
 //            .position(bangalore)

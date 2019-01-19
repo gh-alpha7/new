@@ -19,13 +19,14 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
-            <!--<ImageView-->
-                    <!--android:layout_width="40dp"-->
-                    <!--android:layout_height="wrap_content" app:srcCompat="@drawable/qrcode" android:id="@+id/imageView3"-->
-                    <!--android:onClick="qrcodeclick"-->
-                    <!--android:layout_gravity="right"-->
+            <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="wrap_content" app:srcCompat="@drawable/refresh" android:id="@+id/imageView3"
+                    android:onClick="clickRefresh"
+                    android:layout_gravity="right"
 
-            <!--/>-->
+            />
+
 
 
 
@@ -36,23 +37,23 @@
 
     <include layout="@layout/content_main"/>
     <include layout="@layout/float_place_search" />
-    <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginRight="2dp" android:layout_marginTop="100dp">
+    <!--<FrameLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="right"-->
+            <!--android:layout_marginRight="2dp" android:layout_marginTop="100dp">-->
 
-        <android.support.design.widget.FloatingActionButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:id="@+id/navFloatingRefresh"
-                app:backgroundTint="@color/colorPrimary" android:layout_gravity="bottom"
-                android:layout_margin="10dp"
-                android:onClick="clickRefresh"
-                android:src="@drawable/refresh"
-        />
-    </FrameLayout>
+        <!--<android.support.design.widget.FloatingActionButton-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:clickable="true"-->
+                <!--android:id="@+id/navFloatingRefresh"-->
+                <!--app:backgroundTint="@color/colorPrimary" android:layout_gravity="bottom"-->
+                <!--android:layout_margin="10dp"-->
+                <!--android:onClick="clickRefresh"-->
+                <!--android:src="@drawable/refresh"-->
+        <!--/>-->
+    <!--</FrameLayout>-->
     <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
