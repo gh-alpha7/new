@@ -733,10 +733,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             true
         }
-        mMap.uiSettings.isZoomControlsEnabled = true
         //mMap.setMinZoomPreference(11F)
         //showDefaultLocation()
-        mMap.setPadding(0, 0, 0, 120)
 
     }
 
