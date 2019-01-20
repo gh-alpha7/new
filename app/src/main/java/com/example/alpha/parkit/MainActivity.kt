@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import android.Manifest;
 import android.annotation.SuppressLint
+import android.content.ClipData
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager;
@@ -26,6 +27,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.support.annotation.RequiresApi
+import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityCompat.requestPermissions
 import android.support.v4.content.ContextCompat;
@@ -52,7 +54,6 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback,LocationListener {
-
 
     private lateinit var mMap: GoogleMap
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -85,6 +86,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var db: FirebaseFirestore
     lateinit var user: FirebaseAuth
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,8 +113,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 1
             )
         }
-        bookFloat.visibility = View.GONE
-        navigate.visibility=View.GONE
+//        bookFloat.visibility = View.GONE
+//        navigate.visibility=View.GONE
         var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         myView = inflater.inflate(R.layout.activity_spot_book, null)
 //
@@ -155,10 +157,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?;
         locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
-
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         setUserData()
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        when (item.itemId) {
+            R.id.bookSpace -> {
+                if(selectedMarker!=null) {
+                    clickBook()
+                }
+                else {
+                    Toast.makeText(this@MainActivity, "Please select the parking marker", Toast.LENGTH_SHORT).show()
+                }
+            }
+            R.id.navigate -> {
+                if(selectedMarker!=null) {
+                    clickNav()
+                }
+                else {
+                    Toast.makeText(this@MainActivity, "Please select the parking marker", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+
+            R.id.refresh -> {
+                clickRefresh()
+            }
+        }
+        false
     }
 
 
@@ -197,7 +226,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun clickBook(view: View){
+    fun clickBook(){
 
         var pos=selectedMarker.toString()
         var flag:Boolean=arrayOfMarker.contains(pos)
@@ -318,7 +347,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    fun clickNav(view: View){
+    fun clickNav(){
         val intent = Intent(
             android.content.Intent.ACTION_VIEW,
             Uri.parse("http://maps.google.com/maps?saddr="+origin!!.latitude.toString()+","+origin!!.longitude.toString()+"&daddr="+dest!!.latitude.toString()+","+dest!!.longitude.toString())
@@ -337,8 +366,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
+        return false
         menuInflater.inflate(R.menu.main, menu)
-        return true
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -350,10 +380,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 return true
             }
+
             else -> return super.onOptionsItemSelected(item)
         }
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
@@ -384,6 +417,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
             }
+
+            R.id.bookSpace -> {
+                clickBook()
+                Toast.makeText(this@MainActivity, "clickbook", Toast.LENGTH_SHORT).show()
+            }
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
@@ -404,26 +442,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var name:String="subham"
         var email:String=" "
         var phno:String=" "
-        db.collection("Users")
-            .whereEqualTo("mail", emaiL)
-            .get().addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val jsonObject = document.data
-                    //Toast.makeText(this@MainActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
-                    //var place: Place = Place.
+        FirebaseFirestore.getInstance().collection("Users")
+            .document(FirebaseAuth.getInstance().currentUser!!.uid)
+            .get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
                     if (jsonObject!!.containsKey("uname")) {
                         name=jsonObject.get("uname").toString()
                         email=jsonObject.get("mail").toString()
                         phno=jsonObject.get("phno").toString()
+                        val intent = Intent(this, ProfileActivity::class.java).apply {
+                            putExtra("name", name)
+                            putExtra("email", email)
+                            putExtra("phNo", phno)
+                        }
+                        startActivity(intent)
+
                     }
+
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
                 }
-                val intent = Intent(this, ProfileActivity::class.java).apply {
-                    putExtra("name", name)
-                    putExtra("email", email)
-                    putExtra("phNo", phno)
-                }
-                startActivity(intent)
-            }
+            })
+
 
 
     }
@@ -534,6 +577,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+
+
     fun getOwnerId(Location : String) {
         print(Location)
         db.collection("points").document(Location).get()
@@ -630,6 +675,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mMap = googleMap
         enableMyLocationIfPermitted()
         populatePage()
+
         mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
         mMap.setOnMyLocationClickListener(onMyLocationClickListener)
         mMap.setMinZoomPreference(15F)
@@ -650,12 +696,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // if marker source is clicked
             Toast.makeText(this, placeID, Toast.LENGTH_SHORT).show()// display toast
 
-            bookFloat.visibility = View.VISIBLE
-            navigate.visibility=View.VISIBLE
-            bookFloat.setOnClickListener(View.OnClickListener {
-                //startBooking(placeID)
-                Toast.makeText(this, "startBooking", Toast.LENGTH_SHORT).show()// display toast
-            })
+//            bookFloat.visibility = View.VISIBLE
+//            navigate.visibility=View.VISIBLE
+//            bookFloat.setOnClickListener(View.OnClickListener {
+//                //startBooking(placeID)
+//                Toast.makeText(this, "startBooking", Toast.LENGTH_SHORT).show()// display toast
+//            })
             origin = this!!.curLatLng!!;
             dest = marker.position;
 
@@ -690,6 +736,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mMap.uiSettings.isZoomControlsEnabled = true
         //mMap.setMinZoomPreference(11F)
         //showDefaultLocation()
+        mMap.setPadding(0, 0, 0, 120)
 
     }
 
@@ -712,7 +759,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun clickRefresh(view: View){
+    fun clickRefresh(){
         mMap.clear()
         populatePage()
     }

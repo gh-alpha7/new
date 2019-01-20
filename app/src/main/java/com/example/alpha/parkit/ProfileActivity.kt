@@ -23,6 +23,8 @@ class ProfileActivity : AppCompatActivity() {
         if(name.split("\\s".toRegex()).size==2) {
             sname1 = name.split("\\s".toRegex())[1]
         }
+        var profilePic=findViewById<TextView>(R.id.profilePic)
+        profilePic.text=Character.toString(name[0])
         email.text=intent.getStringExtra("email")
         phno.text = intent.getStringExtra("phNo")
         fname.text=fname1

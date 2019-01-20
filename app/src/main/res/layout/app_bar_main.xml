@@ -19,13 +19,7 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
-            <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="wrap_content" app:srcCompat="@drawable/refresh" android:id="@+id/imageView3"
-                    android:onClick="clickRefresh"
-                    android:layout_gravity="right"
 
-            />
 
 
 
@@ -54,48 +48,19 @@
                 <!--android:src="@drawable/refresh"-->
         <!--/>-->
     <!--</FrameLayout>-->
-    <FrameLayout
-            android:layout_width="wrap_content"
+
+
+    <android.support.design.widget.BottomNavigationView
+            android:id="@+id/navigation"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/navigate"
-            android:layout_gravity="bottom|left"
-            android:layout_marginBottom="80dp" android:layout_marginLeft="10dp">
-        <android.support.design.widget.FloatingActionButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true" android:id="@+id/floatingActionButton"
-                app:backgroundTint="@color/colorPrimary" android:layout_gravity="bottom"
-                android:layout_margin="10dp"
-                android:onClick="clickNav"
-                android:src="@drawable/navigation"
-        />
+            android:layout_gravity="bottom"
+            android:background="?android:attr/windowBackground"
+            app:itemBackground="?attr/colorPrimary"
+            android:foreground="?attr/selectableItemBackground"
+            app:itemIconTint="@android:color/white"
+            app:itemTextColor="@android:color/white"
+            app:menu="@menu/bottom_nav" />
 
-    </FrameLayout>
-    <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/bookFloat"
-            android:layout_gravity="bottom|left"
-            android:layout_margin="10dp">
-        <android.support.design.widget.FloatingActionButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true" android:id="@+id/navFloating"
-                app:backgroundTint="@color/colorPrimary" android:layout_gravity="bottom"
-                android:layout_margin="10dp"
-                android:onClick="clickBook"
-        />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="BOOK"
-                android:elevation="16dp"
-                android:textColor="@color/white"
-                android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-
-    </FrameLayout>
 
 </android.support.design.widget.CoordinatorLayout>
