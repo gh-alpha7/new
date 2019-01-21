@@ -7,13 +7,16 @@
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="42dp"
-            android:layout_height="88dp" android:layout_marginTop="10dp">
+            android:layout_height="88dp"
+            android:layout_marginTop="10dp">
         <ImageView
                 android:layout_width="30dp"
                 android:layout_height="58dp"
-                android:id="@+id/imageView2" android:layout_marginStart="18dp"
+                android:id="@+id/imageView2"
+                android:layout_marginStart="18dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="5dp" tools:srcCompat="@drawable/googleg_standard_color_18"
+                android:layout_marginLeft="5dp"
+                tools:srcCompat="@drawable/googleg_standard_color_18"
                 android:layout_margin="5dp"/>
     </LinearLayout>
     <LinearLayout

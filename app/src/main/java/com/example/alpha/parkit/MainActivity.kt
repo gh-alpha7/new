@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var emaiL:String?=""
     var OwnerId:String=""
     var OwnerPhone:String=""
+    var SelectedLocationID = ""
     var arrayOfMarker:Array<String> = arrayOf()
     var selectedMarker:LatLng?=null
     var upi:TextView?=null
@@ -93,8 +94,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        db = FirebaseFirestore.getInstance()
-        user = FirebaseAuth.getInstance()
+            db = FirebaseFirestore.getInstance()
+            user = FirebaseAuth.getInstance()
         val sharedPref = this.getSharedPreferences("com.example.alpha.alphaPark", 0)
         emaiL = sharedPref.getString("Email", "");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -162,6 +163,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
     }
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -191,48 +193,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    fun populatePage(){
-        db.collection("points")
-            .get().addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val jsonObject = document.data
-                    //Toast.makeText(this@MainActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
-                    //var place: Place = Place.
-                    if (jsonObject!!.containsKey("Lat")) {
-                        var place:LatLng =  LatLng(jsonObject.get("Lat").toString().toDouble(),jsonObject.get("Lon").toString().toDouble())
-                        //fnameHold.setText(jsonObject.get("uname").toString())
-                        //Toast.makeText(this@MainActivity, fnameHold.text, Toast.LENGTH_SHORT).show()
-                        //Toast.makeText(this@MainActivity, jsonObject.get("uname").toString(), Toast.LENGTH_SHORT).show()
-                        arrayOfMarker=arrayOfMarker.plus(place.toString())
-                        mMap.addMarker(MarkerOptions()
-                            .position(place)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
-
-                    }
-                    if (jsonObject.containsKey("mail")) {
-                        //emailHold.text =  jsonObject.get("mail").toString()
-                        //edit_email.setKeyListener(null);
-                    }
-
-                }
-            }
-            .addOnFailureListener { exception ->
-
-                Toast.makeText(this@MainActivity, "Error getting documents: "+exception, Toast.LENGTH_SHORT).show()
-            }
-
-    }
-
-
-
+    /////-----------------funciton to run when book button is clicked
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun clickBook(){
 
         var pos=selectedMarker.toString()
         var flag:Boolean=arrayOfMarker.contains(pos)
+        upi=myView!!.findViewById<EditText>(R.id.upi)
+
 
         if(flag) {
-
+            upi!!.isEnabled
+            upi!!.setText(OwnerPhone)
             popupWindow = PopupWindow(
                 myView, // Custom view to show in popup window
                 LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
@@ -285,13 +257,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-
+    lateinit var amount: String
+    lateinit var dur: String
+    ////--------funciton to run when confirm is pressed from booking details page
     fun paytmbutton(view: View){
         val currencyUnit = "INR"
         var amountEdit:EditText= myView!!.findViewById<EditText>(R.id.amount)
         var upiEdit:EditText= myView!!.findViewById<EditText>(R.id.upi)
-        var amount= amountEdit.text.toString()
+        var durHold:EditText= myView!!.findViewById<EditText>(R.id.bookTime)
+
+        amount= amountEdit.text.toString()
         var upi=upiEdit.text.toString()
+        dur=durHold.text.toString()
         if(amount=="" || upi =="") {
             Toast.makeText(this, "Please fill fields", Toast.LENGTH_SHORT).show()
         }
@@ -314,39 +291,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun setUserData(){
-
-
-        var uemail = findViewById<View>(R.id.nav_view) as NavigationView
-        var navHead = uemail.getHeaderView(0)
-        var emailHold = navHead.findViewById(R.id.main_page_email) as TextView
-        var fnameHold = navHead.findViewById(R.id.main_page_uname) as TextView
-        var profileText=navHead.findViewById(R.id.navProfilePic) as TextView
-        FirebaseFirestore.getInstance().collection("Users")
-            .document(FirebaseAuth.getInstance().currentUser!!.uid)
-            .get()
-            .addOnCompleteListener(OnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    if (!task.result!!.exists()) return@OnCompleteListener
-                    val jsonObject = task.result!!.data
-                    if (jsonObject!!.containsKey("uname")) {
-                        var nameText=jsonObject.get("uname").toString()
-                        fnameHold.text=nameText
-                        var text=fnameHold.text.toString()
-                        profileText.text=Character.toString(nameText[0])
-                        print(text)
-                    }
-                    if (jsonObject.containsKey("mail")) {
-                        emailHold.setText(jsonObject.get("mail").toString());
-                        //edit_email.setKeyListener(null);
-                    }
-                } else {
-                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
-                }
-            })
-
-    }
-
+    /////--------runs when nav icon is pressed, redirects to google maps
     fun clickNav(){
         val intent = Intent(
             android.content.Intent.ACTION_VIEW,
@@ -354,7 +299,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
         startActivity(intent)
     }
-
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
@@ -384,7 +328,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             else -> return super.onOptionsItemSelected(item)
         }
     }
-
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -428,16 +371,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-
-    fun signOut() {
-        FirebaseAuth.getInstance().signOut()
-        Toast.makeText(
-            this@MainActivity, "Logging Out",
-            Toast.LENGTH_SHORT
-        ).show()
-        startActivity(Intent(this@MainActivity, LoginActivity::class.java))
-    }
-
     fun profileImageClick(view: View) {
         var name:String="subham"
         var email:String=" "
@@ -470,314 +403,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-//    fun qrcodeclick(view: View){
-//        try {
-//
-//            val intent = Intent("com.google.zxing.client.android.SCAN")
-//            intent.putExtra("SCAN_MODE", "QR_CODE_MODE") // "PRODUCT_MODE for bar codes
-//            intent.putExtra("PROMPT_MESSAGE", "Point the camera at the code")
-//            intent.putExtra("SCAN_CAMERA_ID", 1)
-//            startActivityForResult(intent, 0)
-//
-//        } catch (e: Exception) {
-//
-//            var marketUri = Uri.parse("market://details?id=com.google.zxing.client.android")
-//            val marketIntent = Intent(Intent.ACTION_VIEW, marketUri)
-//            startActivity(marketIntent)
-//
-//        }
-//    }
-
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        print(requestCode)
-        print(resultCode)
-        print(data)
-        if(data!=null) {
-
-//            var res = data.getStringExtra("response");
-//            var search = "SUCCESS";
-//            if (res!!.toLowerCase().contains(search.toLowerCase())) {
-                Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
-//            } else {
-//                Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
-//            }
-        }
-        else{
-            Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
-        }
-
-
-//        if (requestCode == 0) {
-//
-//            if (resultCode == RESULT_OK) {
-//                val contents = data!!.getStringExtra("SCAN_RESULT")
-//                val currencyUnit = "INR"
-//                var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-//                var myView = inflater.inflate(R.layout.activity_spot_book, null)
-//                var amountEdit:EditText= myView.findViewById<EditText>(R.id.amount)
-//                var upiEdit:EditText= myView.findViewById<EditText>(R.id.upi)
-//                var amount= amountEdit.text.toString()
-//                var upi=upiEdit.text.toString()
-//                Toast.makeText(this, "scanned", Toast.LENGTH_SHORT).show()// display toast
-//                val uri = Uri.parse(
-//                    "upi://pay?pa=" + upi + "&am=" + amount + "&cu=" + currencyUnit
-//                )
-//
-//                val intent = Intent(Intent.ACTION_VIEW, uri)
-//                startActivityForResult(intent, 1)
-//            }
-//            if (resultCode == RESULT_CANCELED) {
-//                //handle cancel
-//            }
-//        }
-    }
-    private val onMyLocationButtonClickListener = GoogleMap.OnMyLocationButtonClickListener {
-        mMap.setMinZoomPreference(15f)
-        false
-    }
-
-    private val onMyLocationClickListener = GoogleMap.OnMyLocationClickListener { location ->
-        mMap.setMinZoomPreference(15f)
-
-        val circleOptions = CircleOptions()
-        circleOptions.center(
-            LatLng(
-                location.latitude,
-                location.longitude
-            )
-        )
-
-        curLatLng=LatLng(
-            location.latitude,
-            location.longitude
-        )
-//
-//        circleOptions.radius(200.0)
-//        circleOptions.fillColor(Color.RED)
-//        circleOptions.strokeWidth(6f)
-//
-//        mMap.addCircle(circleOptions)
-//        mMap.setMinZoomPreference(15f)
-    }
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            LOCATION_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    enableMyLocationIfPermitted()
-                } else {
-                    showDefaultLocation()
-                }
-                return
-            }
-        }
-    }
-
-
-
-    fun getOwnerId(Location : String) {
-        print(Location)
-        db.collection("points").document(Location).get()
-            .addOnCompleteListener(OnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    if (!task.result!!.exists()) return@OnCompleteListener
-                    val jsonObject = task.result!!.data
-                    if (jsonObject!!.containsKey("Owner")) {
-                        OwnerId= jsonObject.get("Owner").toString()
-                        getOwnerDetails((OwnerId))
-                    }
-
-
-                } else {
-                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
-                }
-            })
-
-
-    }
-
-    fun getOwnerDetails(ownerID: String) {
-        print(ownerID)
-//        val jsonObje= HashMap<String, Any>()
-        db.collection("Users").document(ownerID.toString()).get()
-            .addOnCompleteListener(OnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    if (!task.result!!.exists()) return@OnCompleteListener
-                    val jsonObject = task.result!!.data
-                    if (jsonObject!!.containsKey("phno")) {
-                        OwnerPhone=jsonObject.get("phno").toString()
-                        upi=myView!!.findViewById<EditText>(R.id.upi)
-
-
-                        upi!!.setText(OwnerPhone)
-                    }
-
-                } else {
-                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
-
-                }
-            })
-
-    }
-
-
-    fun getPlaceDetails(placeID: String): HashMap<String,Any>{
-        val jsonObje= HashMap<String, Any>()
-        db.collection("places").document(placeID).get()
-            .addOnCompleteListener(OnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    if (!task.result!!.exists()) return@OnCompleteListener
-                    val jsonObject = task.result!!.data
-                    if (jsonObject!!.containsKey("Name")) {
-                        jsonObje.set("Name",jsonObject.containsKey("Name"))
-                    }
-                    if (jsonObject.containsKey("Owner")) {
-                        //edit_email.setKeyListener(null);
-                        jsonObje.set("Owner",jsonObject.containsKey("Owner"))
-                    }
-                    if (jsonObject.containsKey("ID")) {
-                        //edit_email.setKeyListener(null);
-                        jsonObje.set("ID",jsonObject.containsKey("ID"))
-                    }
-
-                } else {
-                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
-                }
-            })
-        return jsonObje
-    }
-
-
-    fun setBookingDetails(ownerID: String,placeID: String): Boolean{
-        val items= HashMap<String, Any>()
-        var retur: Boolean = true
-        items.put("user",user.currentUser!!.uid)
-        items.put("owner",ownerID)
-        items.put("place",placeID)
-
-        db.collection("Bookings").add(items)
-            .addOnCompleteListener(OnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    retur = true
-                } else {
-                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
-                    retur = false
-                }
-            })
-        return retur
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        enableMyLocationIfPermitted()
-        populatePage()
-
-        mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
-        mMap.setOnMyLocationClickListener(onMyLocationClickListener)
-        mMap.setMinZoomPreference(15F)
-//        mMap.setOnMapLongClickListener {
-//
-////            mMap.clear()
-//            mMap.addMarker(MarkerOptions().position(it)
-//                .draggable(true))
-//        }
-
-
-
-        mMap.setOnMarkerClickListener { marker ->
-            selectedMarker=marker.position
-            getOwnerId(selectedMarker!!.latitude.toString()+selectedMarker!!.longitude.toString())
-            print(marker.id)
-            val placeID: String = marker.position.latitude.toString()+marker.position.longitude.toString()
-            // if marker source is clicked
-            Toast.makeText(this, placeID, Toast.LENGTH_SHORT).show()// display toast
-
-//            bookFloat.visibility = View.VISIBLE
-//            navigate.visibility=View.VISIBLE
-//            bookFloat.setOnClickListener(View.OnClickListener {
-//                //startBooking(placeID)
-//                Toast.makeText(this, "startBooking", Toast.LENGTH_SHORT).show()// display toast
-//            })
-            origin = this!!.curLatLng!!;
-            dest = marker.position;
-
-            // Getting URL to the Google Directions API
-            var url:String = getDirectionsUrl(origin!!, dest!!)
-            print(url)
-//            val path: MutableList<List<LatLng>> = ArrayList()
-//            val directionsRequest = object : StringRequest(
-//                Request.Method.GET, url, Response.Listener<String> {
-//                        response ->
-//                    val jsonResponse = JSONObject(response)
-//                    // Get routes
-//                    val routes = jsonResponse.getJSONArray("routes")
-//                    val legs = routes.getJSONObject(0).getJSONArray("legs")
-//                    val steps = legs.getJSONObject(0).getJSONArray("steps")
-//                    for (i in 0 until steps.length()) {
-//                        val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
-//                        //path.add(PolyUtil.decode(points))
-//                    }
-//                    for (i in 0 until path.size) {
-//                        //mMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.rgb(93, 173, 226)))
-//                    }
-//
-//                }, Response.ErrorListener {
-//                        _ ->
-//                }){}
-//            val requestQueue = Volley.newRequestQueue(this)
-//            requestQueue.add(directionsRequest)
-
-            true
-        }
-        //mMap.setMinZoomPreference(11F)
-        //showDefaultLocation()
-
-    }
-
-
-
-
-    private fun enableMyLocationIfPermitted() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE
-            )
-        } else if (mMap != null) {
-            mMap.isMyLocationEnabled = true
-        }
-    }
-
-    fun clickRefresh(){
-        mMap.clear()
-        populatePage()
-    }
-
-    private fun showDefaultLocation() {
-
-        val bangalore = LatLng(12.9716, 77.5946)
-        val ban1=LatLng(12.98,77.1)
-//        mMap.setMinZoomPreference(15f)
-
-//        mMap.addMarker(MarkerOptions().position(bangalore).title("Marker in Bangalore"))
-//        mMap.addMarker(MarkerOptions()
-//            .position(bangalore)
-//            .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(bangalore))
-
-
-
-
-    }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
 
@@ -790,36 +415,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onProviderDisabled(provider: String?) {
 
     }
-
-    override fun onLocationChanged(location: Location?) {
-        curLatLng =  LatLng(location!!.getLatitude(), location.getLongitude());
-        var cameraUpdate = CameraUpdateFactory.newLatLngZoom(curLatLng, 10F);
-        mMap.animateCamera(cameraUpdate);
-    }
-
-    private fun getDirectionsUrl(origin: LatLng, dest: LatLng): String {
-
-        // Origin of route
-        val str_origin = "origin=" + origin.latitude + "," + origin.longitude
-
-        // Destination of route
-        val str_dest = "destination=" + dest.latitude + "," + dest.longitude
-
-        // Sensor enabled
-        val sensor = "sensor=false"
-        val api_key="key=AIzaSyAoncE3HjFoXY3gJZucv4yPfQuWXCSya58"
-        // Building the parameters to the web service
-        val parameters = "$str_origin&$str_dest&$sensor&$api_key"
-
-        // Output format
-        val output = "json"
-
-        // Building the url to the web service
-
-        return "https://maps.googleapis.com/maps/api/directions/$output?$parameters"
-    }
-
-
     fun generateChecksum(){
         var r= Random(System.currentTimeMillis())
         order_id="Order"+(1+r.nextInt(2))*1000+r.nextInt(1001)
@@ -852,7 +447,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         Volley.newRequestQueue(this).add(jsonObjectRequest)
     }
-
 
     fun onStartTransaction() {
         val Service = PaytmPGService.getStagingService()
@@ -952,7 +546,401 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             })
     }
 
+    ///////-----------------------------------------------------Location and Map Managing Functions
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    enableMyLocationIfPermitted()
+                } else {
+                    showDefaultLocation()
+                }
+                return
+            }
+        }
+    }
 
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+        enableMyLocationIfPermitted()
+        populatePage()
+
+        mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
+        mMap.setOnMyLocationClickListener(onMyLocationClickListener)
+        //mMap.setMinZoomPreference(15F)
+//        mMap.setOnMapLongClickListener {
+//
+////            mMap.clear()
+//            mMap.addMarker(MarkerOptions().position(it)
+//                .draggable(true))
+//        }
+
+
+
+        mMap.setOnMarkerClickListener { marker ->
+            selectedMarker=marker.position
+            SelectedLocationID = selectedMarker!!.latitude.toString()+selectedMarker!!.longitude.toString()
+            OwnerId=getOwnerId(selectedMarker!!.latitude.toString()+selectedMarker!!.longitude.toString())
+            //getOwnerDetails(OwnerId)
+            print(marker.id)
+            val placeID: String = marker.position.latitude.toString()+marker.position.longitude.toString()
+            // if marker source is clicked
+            Toast.makeText(this, placeID, Toast.LENGTH_SHORT).show()// display toast
+
+//            bookFloat.visibility = View.VISIBLE
+//            navigate.visibility=View.VISIBLE
+//            bookFloat.setOnClickListener(View.OnClickListener {
+//                //startBooking(placeID)
+//                Toast.makeText(this, "startBooking", Toast.LENGTH_SHORT).show()// display toast
+//            })
+            origin = this!!.curLatLng!!;
+            dest = marker.position;
+
+            // Getting URL to the Google Directions API
+            var url:String = getDirectionsUrl(origin!!, dest!!)
+            print(url)
+//            val path: MutableList<List<LatLng>> = ArrayList()
+//            val directionsRequest = object : StringRequest(
+//                Request.Method.GET, url, Response.Listener<String> {
+//                        response ->
+//                    val jsonResponse = JSONObject(response)
+//                    // Get routes
+//                    val routes = jsonResponse.getJSONArray("routes")
+//                    val legs = routes.getJSONObject(0).getJSONArray("legs")
+//                    val steps = legs.getJSONObject(0).getJSONArray("steps")
+//                    for (i in 0 until steps.length()) {
+//                        val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
+//                        //path.add(PolyUtil.decode(points))
+//                    }
+//                    for (i in 0 until path.size) {
+//                        //mMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.rgb(93, 173, 226)))
+//                    }
+//
+//                }, Response.ErrorListener {
+//                        _ ->
+//                }){}
+//            val requestQueue = Volley.newRequestQueue(this)
+//            requestQueue.add(directionsRequest)
+
+            true
+        }
+        //mMap.setMinZoomPreference(11F)
+        //showDefaultLocation()
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        print(requestCode)
+        print(resultCode)
+        print(data)
+        if(data!=null) {
+
+            setBooking(OwnerId,SelectedLocationID,amount,dur)
+
+//            var res = data.getStringExtra("response");
+//            var search = "SUCCESS";
+//            if (res!!.toLowerCase().contains(search.toLowerCase())) {
+            Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
+//            } else {
+//                Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
+//            }
+        }
+        else{
+            Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
+        }
+
+
+//        if (requestCode == 0) {
+//
+//            if (resultCode == RESULT_OK) {
+//                val contents = data!!.getStringExtra("SCAN_RESULT")
+//                val currencyUnit = "INR"
+//                var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+//                var myView = inflater.inflate(R.layout.activity_spot_book, null)
+//                var amountEdit:EditText= myView.findViewById<EditText>(R.id.amount)
+//                var upiEdit:EditText= myView.findViewById<EditText>(R.id.upi)
+//                var amount= amountEdit.text.toString()
+//                var upi=upiEdit.text.toString()
+//                Toast.makeText(this, "scanned", Toast.LENGTH_SHORT).show()// display toast
+//                val uri = Uri.parse(
+//                    "upi://pay?pa=" + upi + "&am=" + amount + "&cu=" + currencyUnit
+//                )
+//
+//                val intent = Intent(Intent.ACTION_VIEW, uri)
+//                startActivityForResult(intent, 1)
+//            }
+//            if (resultCode == RESULT_CANCELED) {
+//                //handle cancel
+//            }
+//        }
+    }
+
+    private val onMyLocationButtonClickListener = GoogleMap.OnMyLocationButtonClickListener {
+        mMap.setMinZoomPreference(12f)
+
+        false
+    }
+
+    private val onMyLocationClickListener = GoogleMap.OnMyLocationClickListener { location ->
+        mMap.setMinZoomPreference(12f)
+
+        val circleOptions = CircleOptions()
+        circleOptions.center(
+            LatLng(
+                location.latitude,
+                location.longitude
+            )
+        )
+
+        curLatLng=LatLng(
+            location.latitude,
+            location.longitude
+        )
+//
+//        circleOptions.radius(200.0)
+//        circleOptions.fillColor(Color.RED)
+//        circleOptions.strokeWidth(6f)
+//
+//        mMap.addCircle(circleOptions)
+//        mMap.setMinZoomPreference(15f)
+    }
+
+    private fun enableMyLocationIfPermitted() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else if (mMap != null) {
+            mMap.isMyLocationEnabled = true
+        }
+    }
+
+    override fun onLocationChanged(location: Location?) {
+        curLatLng =  LatLng(location!!.getLatitude(), location.getLongitude());
+        var cameraUpdate = CameraUpdateFactory.newLatLngZoom(curLatLng, 10F);
+        mMap.animateCamera(cameraUpdate);
+    }
+
+    private fun getDirectionsUrl(origin: LatLng, dest: LatLng): String {
+
+        // Origin of route
+        val str_origin = "origin=" + origin.latitude + "," + origin.longitude
+
+        // Destination of route
+        val str_dest = "destination=" + dest.latitude + "," + dest.longitude
+
+        // Sensor enabled
+        val sensor = "sensor=false"
+        val api_key="key=AIzaSyAoncE3HjFoXY3gJZucv4yPfQuWXCSya58"
+        // Building the parameters to the web service
+        val parameters = "$str_origin&$str_dest&$sensor&$api_key"
+
+        // Output format
+        val output = "json"
+
+        // Building the url to the web service
+
+        return "https://maps.googleapis.com/maps/api/directions/$output?$parameters"
+    }
+
+    fun clickRefresh(){
+        mMap.clear()
+        populatePage()
+    }
+
+    private fun showDefaultLocation() {
+
+        val bangalore = LatLng(12.9716, 77.5946)
+        val ban1=LatLng(12.98,77.1)
+//        mMap.setMinZoomPreference(15f)
+
+//        mMap.addMarker(MarkerOptions().position(bangalore).title("Marker in Bangalore"))
+//        mMap.addMarker(MarkerOptions()
+//            .position(bangalore)
+//            .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(bangalore))
+
+
+
+
+    }
+
+    fun populatePage(){
+        db.collection("points")
+            .get().addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val jsonObject = document.data
+                    //Toast.makeText(this@MainActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    //var place: Place = Place.
+                    if (jsonObject!!.containsKey("Lat")) {
+                        var place:LatLng =  LatLng(jsonObject.get("Lat").toString().toDouble(),jsonObject.get("Lon").toString().toDouble())
+                        //fnameHold.setText(jsonObject.get("uname").toString())
+                        //Toast.makeText(this@MainActivity, fnameHold.text, Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@MainActivity, jsonObject.get("uname").toString(), Toast.LENGTH_SHORT).show()
+                        arrayOfMarker=arrayOfMarker.plus(place.toString())
+                        mMap.addMarker(MarkerOptions()
+                            .position(place)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
+
+                    }
+                    if (jsonObject.containsKey("mail")) {
+                        //emailHold.text =  jsonObject.get("mail").toString()
+                        //edit_email.setKeyListener(null);
+                    }
+
+                }
+            }
+            .addOnFailureListener { exception ->
+
+                Toast.makeText(this@MainActivity, "Error getting documents: "+exception, Toast.LENGTH_SHORT).show()
+            }
+
+    }
+
+    /////--------------------------------------------------------------Database Managing Functions
+    fun signOut() {
+        FirebaseAuth.getInstance().signOut()
+        Toast.makeText(
+            this@MainActivity, "Logging Out",
+            Toast.LENGTH_SHORT
+        ).show()
+        startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+    }
+
+    fun setUserData(){
+
+
+        var uemail = findViewById<View>(R.id.nav_view) as NavigationView
+        var navHead = uemail.getHeaderView(0)
+        var emailHold = navHead.findViewById(R.id.main_page_email) as TextView
+        var fnameHold = navHead.findViewById(R.id.main_page_uname) as TextView
+        var profileText=navHead.findViewById(R.id.navProfilePic) as TextView
+        FirebaseFirestore.getInstance().collection("Users")
+            .document(FirebaseAuth.getInstance().currentUser!!.uid)
+            .get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("uname")) {
+                        var nameText=jsonObject.get("uname").toString()
+                        fnameHold.text=nameText
+                        var text=fnameHold.text.toString()
+                        profileText.text=Character.toString(nameText[0])
+                        print(text)
+                    }
+                    if (jsonObject.containsKey("mail")) {
+                        emailHold.setText(jsonObject.get("mail").toString());
+                        //edit_email.setKeyListener(null);
+                    }
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+
+    }
+
+    fun getOwnerId(Location : String): String {
+        print(Location)
+        //ar ownerID: String
+        db.collection("points").document(Location).get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("Owner")) {
+                        OwnerId= jsonObject.get("Owner").toString()
+                        getOwnerDetails((OwnerId))
+                    }
+
+
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+
+        return OwnerId
+    }
+
+    fun getOwnerDetails(ownerID: String) {
+        print(ownerID)
+//        val jsonObje= HashMap<String, Any>()
+        db.collection("Users").document(ownerID).get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("phno")) {
+                        OwnerPhone=jsonObject.get("phno").toString()
+
+                    }
+
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+
+                }
+            })
+
+    }
+
+    fun getPlaceDetails(placeID: String): HashMap<String,Any>{
+        val jsonObje= HashMap<String, Any>()
+        db.collection("places").document(placeID).get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("Name")) {
+                        jsonObje.set("Name",jsonObject.containsKey("Name"))
+                    }
+                    if (jsonObject.containsKey("Owner")) {
+                        //edit_email.setKeyListener(null);
+                        jsonObje.set("Owner",jsonObject.containsKey("Owner"))
+                    }
+                    if (jsonObject.containsKey("ID")) {
+                        //edit_email.setKeyListener(null);
+                        jsonObje.set("ID",jsonObject.containsKey("ID"))
+                    }
+
+                } else {
+                    Toast.makeText(this@MainActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+        return jsonObje
+    }
+
+    fun setBooking(ownerID: String,placeID: String, amount: String, duration: String): Boolean{
+        val items= HashMap<String, Any>()
+        var retur: Boolean = true
+        items.put("user",user.currentUser!!.uid)
+        items.put("owner",ownerID)
+        items.put("place",placeID)
+        items.put("duration",duration)
+        items.put("amount",amount)
+
+        db.collection("Bookings").add(items)
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    retur = true
+                    Toast.makeText(this@MainActivity, "Booking Successful", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Booking Failed, Amount will be refunded", Toast.LENGTH_SHORT).show()
+
+                    retur = false
+                }
+            })
+        return retur
+    }
 
 
 }
