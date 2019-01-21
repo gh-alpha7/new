@@ -68,6 +68,56 @@ class HistoryActivity : AppCompatActivity() {
 
     }
 
+    fun getOwnerName(ownerID: String):String {
+        print(ownerID)
+        var name: String=""
+        var flag: Int = 0
+//        val jsonObje= HashMap<String, Any>()
+        db.collection("Users").document(ownerID).get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("uname")) {
+                        name=jsonObject.get("uname").toString()
+                    }
+
+                } else {
+                    Toast.makeText(this@HistoryActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+
+                }
+                flag=1
+            })
+        while(flag==0){}
+        return name
+    }
+
+    fun getPlaceDetails(placeID: String): HashMap<String,Any>{
+        val jsonObje= HashMap<String, Any>()
+        db.collection("places").document(placeID).get()
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (!task.result!!.exists()) return@OnCompleteListener
+                    val jsonObject = task.result!!.data
+                    if (jsonObject!!.containsKey("Name")) {
+                        jsonObje.set("Name",jsonObject.containsKey("Name"))
+                    }
+                    if (jsonObject.containsKey("Owner")) {
+                        //edit_email.setKeyListener(null);
+                        jsonObje.set("Owner",jsonObject.containsKey("Owner"))
+                    }
+                    if (jsonObject.containsKey("ID")) {
+                        //edit_email.setKeyListener(null);
+                        jsonObje.set("ID",jsonObject.containsKey("ID"))
+                    }
+
+                } else {
+                    Toast.makeText(this@HistoryActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            })
+        return jsonObje
+    }
+
     class BookingAdapter:BaseAdapter{
         var bookingList=ArrayList<Booking>()
         var context:Context?=null
