@@ -550,6 +550,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             })
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.N)
     fun getTime(view: View){
 
         val cal = Calendar.getInstance()
