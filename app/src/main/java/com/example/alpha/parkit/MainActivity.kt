@@ -552,7 +552,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun getTime(view: View){
+    fun timePick(view: View){
 
         val cal = Calendar.getInstance()
         val lblDate = myView!!.findViewById<EditText>(R.id.in_time)
@@ -566,7 +566,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         TimePickerDialog(this@MainActivity, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false).show()
     }
-    fun datPick(view:View){
+    fun datePick(view:View){
         val cal = Calendar.getInstance()
         val y = cal.get(Calendar.YEAR)
         val m = cal.get(Calendar.MONTH)
