@@ -9,9 +9,8 @@
 
     <LinearLayout android:orientation="vertical"
                   android:layout_width="match_parent"
-                  android:layout_height="300dp"
+                  android:layout_height="500dp"
                   android:layout_margin="40dp"
-
                   tools:layout_editor_absoluteY="0dp" tools:layout_editor_absoluteX="0dp">
         <LinearLayout
                 android:orientation="vertical"
@@ -27,13 +26,46 @@
                     android:spinnerMode="dropdown"
                     android:layout_gravity="center_horizontal" android:layout_marginTop="20dp"
                     android:dropDownWidth="180dp"/>
+
+            <RelativeLayout
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:paddingTop="@dimen/activity_vertical_margin"
+                    android:paddingBottom="@dimen/activity_vertical_margin">
+                <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/in_date"
+                        android:onClick="datPick"
+                        android:focusable="false"
+                        android:hint="Date"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true" />
+
+                <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/in_time"
+                        android:layout_below="@+id/in_date"
+                        android:onClick="getTime"
+                        android:hint="Time"
+                        android:focusable="false"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true" />
+
+            </RelativeLayout>
             <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:ems="5"
                     android:id="@+id/bookTime"
-                    android:hint="Time(hr)"
+                    android:hint="How long? in hr"
                     android:layout_centerHorizontal="true"
                     android:layout_alignParentTop="true"
                     android:layout_gravity="center_horizontal"

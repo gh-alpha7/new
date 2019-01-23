@@ -16,12 +16,15 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import android.Manifest;
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.ClipData
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.icu.text.SimpleDateFormat
 import android.location.Location;
 import android.location.LocationListener
 import android.location.LocationManager
@@ -51,6 +54,7 @@ import com.paytm.pgsdk.PaytmPaymentTransactionCallback
 import org.json.JSONObject
 import java.security.acl.Owner
 import java.util.*
+import javax.xml.datatype.DatatypeConstants.MONTHS
 import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback,LocationListener {
@@ -546,6 +550,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             })
     }
 
+    fun getTime(view: View){
+
+        val cal = Calendar.getInstance()
+        val lblDate = myView!!.findViewById<EditText>(R.id.in_time)
+
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
+            cal.set(Calendar.HOUR_OF_DAY, hour)
+            cal.set(Calendar.MINUTE, minute)
+
+            lblDate.setText(SimpleDateFormat("HH:mm").format(cal.time))
+        }
+
+        TimePickerDialog(this@MainActivity, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false).show()
+    }
+    fun datPick(view:View){
+        val cal = Calendar.getInstance()
+        val y = cal.get(Calendar.YEAR)
+        val m = cal.get(Calendar.MONTH)
+        val d = cal.get(Calendar.DAY_OF_MONTH)
+        val lblDate = myView!!.findViewById<EditText>(R.id.in_date)
+
+        val datepickerdialog: DatePickerDialog = DatePickerDialog(this@MainActivity,
+            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+
+            // Display Selected date in textbox
+            lblDate.setText("" + dayOfMonth + " " + monthOfYear + ", " + year)
+        }, y, m, d)
+
+        datepickerdialog.show()
+    }
+
     ///////-----------------------------------------------------Location and Map Managing Functions
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>,
@@ -637,48 +672,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         print(requestCode)
         print(resultCode)
         print(data)
-        if(data!=null) {
+        if (data != null) {
 
-            setBooking(OwnerId,SelectedLocationID,amount,dur)
+            setBooking(OwnerId, SelectedLocationID, amount, dur)
 
-//            var res = data.getStringExtra("response");
-//            var search = "SUCCESS";
-//            if (res!!.toLowerCase().contains(search.toLowerCase())) {
             Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
-//            } else {
-//                Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
-//            }
-        }
-        else{
+        } else {
             Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show();
         }
-
-
-//        if (requestCode == 0) {
-//
-//            if (resultCode == RESULT_OK) {
-//                val contents = data!!.getStringExtra("SCAN_RESULT")
-//                val currencyUnit = "INR"
-//                var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-//                var myView = inflater.inflate(R.layout.activity_spot_book, null)
-//                var amountEdit:EditText= myView.findViewById<EditText>(R.id.amount)
-//                var upiEdit:EditText= myView.findViewById<EditText>(R.id.upi)
-//                var amount= amountEdit.text.toString()
-//                var upi=upiEdit.text.toString()
-//                Toast.makeText(this, "scanned", Toast.LENGTH_SHORT).show()// display toast
-//                val uri = Uri.parse(
-//                    "upi://pay?pa=" + upi + "&am=" + amount + "&cu=" + currencyUnit
-//                )
-//
-//                val intent = Intent(Intent.ACTION_VIEW, uri)
-//                startActivityForResult(intent, 1)
-//            }
-//            if (resultCode == RESULT_CANCELED) {
-//                //handle cancel
-//            }
-//        }
     }
-
     private val onMyLocationButtonClickListener = GoogleMap.OnMyLocationButtonClickListener {
         mMap.setMinZoomPreference(12f)
 
@@ -700,13 +702,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             location.latitude,
             location.longitude
         )
-//
-//        circleOptions.radius(200.0)
-//        circleOptions.fillColor(Color.RED)
-//        circleOptions.strokeWidth(6f)
-//
-//        mMap.addCircle(circleOptions)
-//        mMap.setMinZoomPreference(15f)
     }
 
     private fun enableMyLocationIfPermitted() {
