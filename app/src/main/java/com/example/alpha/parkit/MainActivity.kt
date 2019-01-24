@@ -86,7 +86,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var OwnerId:String=""
     var OwnerPhone:String=""
     var SelectedLocationID = ""
+
     var arrayOfMarker:Array<String> = arrayOf()
+    var arrayOfLocationNames:Array<String> = arrayOf()
+    var arrayOfOwnerNames:Array<String> = arrayOf()
+
+    var currentOwnerName=""
+    var currentPlaceName=""
     var selectedMarker:LatLng?=null
     var upi:TextView?=null
     lateinit var db: FirebaseFirestore
@@ -99,7 +105,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-            date=Date(0,0,0,0,0)
+            date= Date(0,0,0,0,0)
             db = FirebaseFirestore.getInstance()
             user = FirebaseAuth.getInstance()
         val sharedPref = this.getSharedPreferences("com.example.alpha.alphaPark", 0)
@@ -196,12 +202,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun clickBook(){
 
-        var pos=selectedMarker.toString()
+        var pos=selectedMarker!!.latitude.toString()+selectedMarker!!.longitude.toString()
         var flag:Boolean=arrayOfMarker.contains(pos)
         upi=myView!!.findViewById<EditText>(R.id.upi)
 
 
         if(flag) {
+            var index=arrayOfMarker.indexOf(pos)
+            currentOwnerName=arrayOfOwnerNames[index]
+            currentPlaceName=arrayOfLocationNames[index]
             upi!!.isEnabled
             upi!!.setText(OwnerPhone)
             popupWindow = PopupWindow(
@@ -265,7 +274,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var upiEdit:EditText= myView!!.findViewById<EditText>(R.id.upi)
         var durHold:EditText= myView!!.findViewById<EditText>(R.id.bookTime)
 
-        var dateHold:EditText= myView!!.findViewById<EditText>(R.id.bookTime)
         amount= amountEdit.text.toString()
         var upi=upiEdit.text.toString()
         dur=durHold.text.toString()
@@ -739,10 +747,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     //var place: Place = Place.
                     if (jsonObject!!.containsKey("Lat")) {
                         var place:LatLng =  LatLng(jsonObject.get("Lat").toString().toDouble(),jsonObject.get("Lon").toString().toDouble())
-                        //fnameHold.setText(jsonObject.get("uname").toString())
-                        //Toast.makeText(this@MainActivity, fnameHold.text, Toast.LENGTH_SHORT).show()
-                        //Toast.makeText(this@MainActivity, jsonObject.get("uname").toString(), Toast.LENGTH_SHORT).show()
-                        arrayOfMarker=arrayOfMarker.plus(place.toString())
+                        arrayOfMarker=arrayOfMarker.plus(place.latitude.toString()+place.longitude.toString())
+                        arrayOfLocationNames = arrayOfLocationNames.plus(jsonObject.get("Name").toString())
+                        arrayOfOwnerNames=arrayOfOwnerNames.plus(jsonObject.get("OwnerName").toString())
                         mMap.addMarker(MarkerOptions()
                             .position(place)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
@@ -883,11 +890,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         items.put("duration",duration)
         items.put("amount",amount.toInt())
         items.put("type",vehicle)
+
+        items.put("ownerName",currentOwnerName)
+        items.put("placeName",currentPlaceName)
         items.put("time_year",date.year)
         items.put("time_month",date.month)
         items.put("time_day",date.day)
         items.put("time_hrs",date.hours)
         items.put("time_mins",date.minutes)
+
+
         db.collection("Bookings").add(items)
             .addOnCompleteListener(OnCompleteListener { task ->
                 if (task.isSuccessful) {

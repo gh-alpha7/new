@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ProgressBar
 import android.widget.Toast
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -27,12 +28,15 @@ class HistoryActivity : AppCompatActivity() {
 
     lateinit var db: FirebaseFirestore
     lateinit var user: FirebaseAuth
+    lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
         setTitle("History")
 
+        progressBar = findViewById<ProgressBar>(R.id.progressBarHistoryTab)
+        progressBar.visibility = View.VISIBLE
         db = FirebaseFirestore.getInstance()
         user = FirebaseAuth.getInstance()
 
@@ -49,26 +53,11 @@ class HistoryActivity : AppCompatActivity() {
 
                     val jsonObject = document.data
                     var ownerName:String
-                    //Toast.makeText(this@HistoryActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
-                    db.collection("Users").document(jsonObject.get("owner").toString()).get()
-                        .addOnCompleteListener(OnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                if (!task.result!!.exists()) return@OnCompleteListener
-                                val jsonObject = task.result!!.data
-                                if (jsonObject!!.containsKey("uname")) {
-                                    ownerName=jsonObject.get("uname").toString()
-                                }
 
-                            } else {
-                                Toast.makeText(this@HistoryActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
-
-                            }
-
-                        })
                     bookingList.add(
                         Booking(
-                            jsonObject.get("owner").toString(),
-                            jsonObject.get("place").toString(),
+                            jsonObject.get("ownerName").toString(),
+                            jsonObject.get("placeName").toString(),
                             inTime = jsonObject.get("time_hrs").toString()+":"+jsonObject.get("time_mins").toString(),
                             outTime = (jsonObject.get("duration").toString().toInt()+jsonObject.get("time_hrs").toString().toInt()).toString()+":"+jsonObject.get("time_mins").toString(),
                             money=jsonObject.get("amount").toString(),
@@ -81,6 +70,7 @@ class HistoryActivity : AppCompatActivity() {
             }.addOnCompleteListener(OnCompleteListener {
                 adapter= BookingAdapter(this,bookingList)
                 bookinglistview.adapter=adapter
+                progressBar.visibility = View.GONE
             })
 
     }
