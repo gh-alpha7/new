@@ -53,6 +53,7 @@ import com.paytm.pgsdk.PaytmPGService
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback
 import org.json.JSONObject
 import java.security.acl.Owner
+import java.sql.Time
 import java.util.*
 import javax.xml.datatype.DatatypeConstants.MONTHS
 import kotlin.collections.HashMap
@@ -91,6 +92,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var db: FirebaseFirestore
     lateinit var user: FirebaseAuth
 
+    lateinit var date: Date
+    lateinit var time: Time
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -270,6 +273,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var upiEdit:EditText= myView!!.findViewById<EditText>(R.id.upi)
         var durHold:EditText= myView!!.findViewById<EditText>(R.id.bookTime)
 
+        var dateHold:EditText= myView!!.findViewById<EditText>(R.id.bookTime)
         amount= amountEdit.text.toString()
         var upi=upiEdit.text.toString()
         dur=durHold.text.toString()
@@ -560,7 +564,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, minute)
-
+            time = Time(hour,minute,0)
+            date = Date(date.year,date.month,date.day,hour,minute)
             lblDate.setText(SimpleDateFormat("HH:mm").format(cal.time))
         }
 
@@ -575,7 +580,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val datepickerdialog: DatePickerDialog = DatePickerDialog(this@MainActivity,
             DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-
+            date = Date(year,monthOfYear,dayOfMonth)
             // Display Selected date in textbox
             lblDate.setText("" + dayOfMonth + " " + monthOfYear + ", " + year)
         }, y, m, d)
@@ -607,15 +612,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         mMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
         mMap.setOnMyLocationClickListener(onMyLocationClickListener)
-        //mMap.setMinZoomPreference(15F)
-//        mMap.setOnMapLongClickListener {
-//
-////            mMap.clear()
-//            mMap.addMarker(MarkerOptions().position(it)
-//                .draggable(true))
-//        }
-
-
 
         mMap.setOnMarkerClickListener { marker ->
             selectedMarker=marker.position
@@ -627,41 +623,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // if marker source is clicked
             Toast.makeText(this, placeID, Toast.LENGTH_SHORT).show()// display toast
 
-//            bookFloat.visibility = View.VISIBLE
-//            navigate.visibility=View.VISIBLE
-//            bookFloat.setOnClickListener(View.OnClickListener {
-//                //startBooking(placeID)
-//                Toast.makeText(this, "startBooking", Toast.LENGTH_SHORT).show()// display toast
-//            })
             origin = this!!.curLatLng!!;
             dest = marker.position;
 
             // Getting URL to the Google Directions API
             var url:String = getDirectionsUrl(origin!!, dest!!)
             print(url)
-//            val path: MutableList<List<LatLng>> = ArrayList()
-//            val directionsRequest = object : StringRequest(
-//                Request.Method.GET, url, Response.Listener<String> {
-//                        response ->
-//                    val jsonResponse = JSONObject(response)
-//                    // Get routes
-//                    val routes = jsonResponse.getJSONArray("routes")
-//                    val legs = routes.getJSONObject(0).getJSONArray("legs")
-//                    val steps = legs.getJSONObject(0).getJSONArray("steps")
-//                    for (i in 0 until steps.length()) {
-//                        val points = steps.getJSONObject(i).getJSONObject("polyline").getString("points")
-//                        //path.add(PolyUtil.decode(points))
-//                    }
-//                    for (i in 0 until path.size) {
-//                        //mMap!!.addPolyline(PolylineOptions().addAll(path[i]).color(Color.rgb(93, 173, 226)))
-//                    }
-//
-//                }, Response.ErrorListener {
-//                        _ ->
-//                }){}
-//            val requestQueue = Volley.newRequestQueue(this)
-//            requestQueue.add(directionsRequest)
-
             true
         }
         //mMap.setMinZoomPreference(11F)
@@ -676,7 +643,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         print(data)
         if (data != null) {
 
-            setBooking(OwnerId, SelectedLocationID, amount, dur)
+            setBooking(OwnerId, SelectedLocationID, amount, dur, vehicle)
 
             Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
         } else {
@@ -916,15 +883,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return jsonObje
     }
 
-    fun setBooking(ownerID: String,placeID: String, amount: String, duration: String): Boolean{
-        val items= HashMap<String, Any>()
+    fun setBooking(ownerID: String,placeID: String, amount: String, duration: String, vehicle:String): Boolean{
+        val items= HashMap<Any, Any>()
         var retur: Boolean = true
         items.put("user",user.currentUser!!.uid)
         items.put("owner",ownerID)
         items.put("place",placeID)
         items.put("duration",duration)
-        items.put("amount",amount)
-
+        items.put("amount",amount.toInt())
+        items.put("type",vehicle)
+        items.put("time_year",date.year)
+        items.put("time_month",date.month)
+        items.put("time_day",date.day)
+        items.put("time_hrs",date.hours)
+        items.put("time_mins",date.minutes)
         db.collection("Bookings").add(items)
             .addOnCompleteListener(OnCompleteListener { task ->
                 if (task.isSuccessful) {

@@ -16,6 +16,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_history.*
 import kotlinx.android.synthetic.main.booking.view.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class HistoryActivity : AppCompatActivity() {
@@ -52,10 +54,10 @@ class HistoryActivity : AppCompatActivity() {
                         Booking(
                             jsonObject.get("owner").toString(),
                             jsonObject.get("place").toString(),
-                            jsonObject.get("user").toString(),
-                            jsonObject.get("duration").toString(),
-                            jsonObject.get("amount").toString(),
-                            R.drawable.googleg_standard_color_18))
+                            inTime = jsonObject.get("time_hrs").toString()+":"+jsonObject.get("time_mins").toString(),
+                            outTime = (jsonObject.get("duration").toString().toInt()+jsonObject.get("time_hrs").toString().toInt()).toString()+":"+jsonObject.get("time_mins").toString(),
+                            money=jsonObject.get("amount").toString(),
+                            image=R.drawable.googleg_standard_color_18))
                 }
             }
             .addOnFailureListener { exception ->
