@@ -93,14 +93,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var user: FirebaseAuth
 
     lateinit var date: Date
-    lateinit var time: Time
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
+            date=Date(0,0,0,0,0)
             db = FirebaseFirestore.getInstance()
             user = FirebaseAuth.getInstance()
         val sharedPref = this.getSharedPreferences("com.example.alpha.alphaPark", 0)
@@ -121,15 +120,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 1
             )
         }
-//        bookFloat.visibility = View.GONE
-//        navigate.visibility=View.GONE
         var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         myView = inflater.inflate(R.layout.activity_spot_book, null)
-//
-//        fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
-//        }
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -564,7 +556,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
             cal.set(Calendar.HOUR_OF_DAY, hour)
             cal.set(Calendar.MINUTE, minute)
-            time = Time(hour,minute,0)
             date = Date(date.year,date.month,date.day,hour,minute)
             lblDate.setText(SimpleDateFormat("HH:mm").format(cal.time))
         }
@@ -580,7 +571,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val datepickerdialog: DatePickerDialog = DatePickerDialog(this@MainActivity,
             DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-            date = Date(year,monthOfYear,dayOfMonth)
+            date = Date(year,monthOfYear,dayOfMonth,date.hours,date.minutes)
             // Display Selected date in textbox
             lblDate.setText("" + dayOfMonth + " " + monthOfYear + ", " + year)
         }, y, m, d)

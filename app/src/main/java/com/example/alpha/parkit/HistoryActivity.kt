@@ -48,8 +48,23 @@ class HistoryActivity : AppCompatActivity() {
                 for (document in documents) {
 
                     val jsonObject = document.data
+                    var ownerName:String
                     //Toast.makeText(this@HistoryActivity, jsonObject.toString(), Toast.LENGTH_SHORT).show()
+                    db.collection("Users").document(jsonObject.get("owner").toString()).get()
+                        .addOnCompleteListener(OnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                if (!task.result!!.exists()) return@OnCompleteListener
+                                val jsonObject = task.result!!.data
+                                if (jsonObject!!.containsKey("uname")) {
+                                    ownerName=jsonObject.get("uname").toString()
+                                }
 
+                            } else {
+                                Toast.makeText(this@HistoryActivity, task.exception!!.localizedMessage, Toast.LENGTH_SHORT).show()
+
+                            }
+
+                        })
                     bookingList.add(
                         Booking(
                             jsonObject.get("owner").toString(),
