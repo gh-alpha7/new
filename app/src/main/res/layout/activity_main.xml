@@ -9,6 +9,15 @@
         android:fitsSystemWindows="true"
         tools:openDrawer="start">
 
+
+    <ProgressBar
+            android:id="@+id/progressBarMainTab"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
     <include
             layout="@layout/app_bar_main"
             android:layout_width="match_parent"

@@ -18,7 +18,6 @@ import android.Manifest;
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.ClipData
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager;
@@ -39,7 +38,6 @@ import android.widget.*
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.alpha.parkit.R.id.*
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -52,8 +50,7 @@ import com.paytm.pgsdk.PaytmOrder
 import com.paytm.pgsdk.PaytmPGService
 import com.paytm.pgsdk.PaytmPaymentTransactionCallback
 import org.json.JSONObject
-import java.security.acl.Owner
-import java.sql.Time
+import java.time.Month
 import java.util.*
 import javax.xml.datatype.DatatypeConstants.MONTHS
 import kotlin.collections.HashMap
@@ -81,7 +78,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var origin:LatLng?=null
     var myView:View?=null
     var popupWindow:PopupWindow?=null
+
     var vehicle:String="Bike"
+
     var emaiL:String?=""
     var OwnerId:String=""
     var OwnerPhone:String=""
@@ -91,14 +90,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var arrayOfLocationNames:Array<String> = arrayOf()
     var arrayOfOwnerNames:Array<String> = arrayOf()
 
+    var bikesCost:Array<Int> = arrayOf()
+    var carsCost:Array<Int> = arrayOf()
+    var bikesCount:Array<Int> = arrayOf()
+    var carsCount:Array<Int> = arrayOf()
+
     var currentOwnerName=""
     var currentPlaceName=""
+    var currentBikeCount=0
+    var currentBikeCost=0
+    var currentCarCount=0
+    var currentCarCost=0
+
     var selectedMarker:LatLng?=null
     var upi:TextView?=null
     lateinit var db: FirebaseFirestore
     lateinit var user: FirebaseAuth
 
     lateinit var date: Date
+    lateinit var progressBar: ProgressBar
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,7 +120,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             db = FirebaseFirestore.getInstance()
             user = FirebaseAuth.getInstance()
         val sharedPref = this.getSharedPreferences("com.example.alpha.alphaPark", 0)
-        emaiL = sharedPref.getString("Email", "");
+        emaiL = sharedPref.getString("Email", "")
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
@@ -126,9 +138,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 1
             )
         }
+        progressBar = findViewById<ProgressBar>(R.id.progressBarMainTab)
+        progressBar.visibility = View.VISIBLE
         var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         myView = inflater.inflate(R.layout.activity_spot_book, null)
-
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
@@ -211,11 +224,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             var index=arrayOfMarker.indexOf(pos)
             currentOwnerName=arrayOfOwnerNames[index]
             currentPlaceName=arrayOfLocationNames[index]
+            currentBikeCost=bikesCost[index]
+            currentBikeCount=bikesCount[index]
+            currentCarCost=carsCost[index]
+            currentCarCount=carsCount[index]
+
             upi!!.isEnabled
             upi!!.setText(OwnerPhone)
             popupWindow = PopupWindow(
                 myView, // Custom view to show in popup window
+
                 LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+                //LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT, // Window height
                 true
             )
@@ -228,9 +248,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             popupWindow!!.elevation = 20f
 
             popupWindow!!.showAtLocation(layout, Gravity.CENTER, 10, 10)
+
             print(R.id.spinner1)
             val spinner: Spinner? = myView!!.findViewById(R.id.spinner1)
 
+            upi!!.setText(OwnerPhone)
             print(spinner)
             if (spinner != null) {
                 ArrayAdapter.createFromResource(
@@ -246,25 +268,75 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                         // Display the selected item text on text view
-                        vehicle = parent.getItemAtPosition(position) as String
 
+                        vehicle = parent.getItemAtPosition(position) as String
+                        changeCost()
+                        //Toast.makeText(this@MainActivity, vehicle, Toast.LENGTH_SHORT).show()
                     }
 
                     override fun onNothingSelected(parent: AdapterView<*>) {
                         // Another interface callback
                         vehicle = "Bike"
+                        //Toast.makeText(this@MainActivity, "sdffd", Toast.LENGTH_SHORT).show()
                     }
                 }
 
 
             }
         }
+    }
 
-
-
+    var minteger=0
+    fun increaseInteger(view: View) {
+        minteger = minteger + 1
+        durationDisplay(minteger)
 
     }
 
+    fun decreaseInteger(view: View) {
+        if(minteger > 0){
+            minteger = minteger - 1
+            durationDisplay(minteger)
+        }
+    }
+    private fun durationDisplay(number:Int) {
+        var displayInteger = myView!!.findViewById<EditText>(R.id.bookTime);
+        displayInteger.setText(number.toString())
+        changeCost()
+    }
+    private fun clearAmountDisplay(){
+        var amountEdit:EditText= myView!!.findViewById<EditText>(R.id.amount)
+        amountEdit.setText("")
+    }
+    fun changeCost(){
+        var amountEdit:EditText= myView!!.findViewById<EditText>(R.id.amount)
+        var durHold:EditText= myView!!.findViewById<EditText>(R.id.bookTime)
+
+        if(durHold.text.toString() == ""){
+            Toast.makeText(this@MainActivity, "Please Enter Duration To calculate cost", Toast.LENGTH_SHORT).show()
+        }else{
+
+            if(vehicle=="Bike"){
+                if(currentBikeCount!=0){
+                    amountEdit.setText((currentBikeCost*durHold.text.toString().toInt()).toString())
+                }else{
+                    Toast.makeText(this@MainActivity, "No Bikes Available", Toast.LENGTH_SHORT).show()
+                    clearAmountDisplay()
+                }
+            }else if(vehicle=="Car"){
+                if(currentBikeCount!=0){
+                    amountEdit.setText((currentCarCost*durHold.text.toString().toInt()).toString())
+                }else{
+                    clearAmountDisplay()
+                    Toast.makeText(this@MainActivity, "No Cars Available", Toast.LENGTH_SHORT).show()
+                }
+            }else{
+                Toast.makeText(this@MainActivity, "Unknown error", Toast.LENGTH_SHORT).show()
+                clearAmountDisplay()
+            }
+        }
+
+    }
     lateinit var amount: String
     lateinit var dur: String
     ////--------funciton to run when confirm is pressed from booking details page
@@ -277,7 +349,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         amount= amountEdit.text.toString()
         var upi=upiEdit.text.toString()
         dur=durHold.text.toString()
-        if(amount=="" || upi =="") {
+        if(amount=="" || upi =="" || dur=="") {
             Toast.makeText(this, "Please fill fields", Toast.LENGTH_SHORT).show()
         }
         else {
@@ -570,6 +642,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         TimePickerDialog(this@MainActivity, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false).show()
     }
+    val MonthList: Array<String> = arrayOf("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
     fun datePick(view:View){
         val cal = Calendar.getInstance()
         val y = cal.get(Calendar.YEAR)
@@ -581,7 +654,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
             date = Date(year,monthOfYear,dayOfMonth,date.hours,date.minutes)
             // Display Selected date in textbox
-            lblDate.setText("" + dayOfMonth + " " + monthOfYear + ", " + year)
+            lblDate.setText("" + dayOfMonth + " " + MonthList[monthOfYear] + ", " + year)
         }, y, m, d)
 
         datepickerdialog.show()
@@ -613,6 +686,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mMap.setOnMyLocationClickListener(onMyLocationClickListener)
 
         mMap.setOnMarkerClickListener { marker ->
+            progressBar.visibility = View.VISIBLE
             selectedMarker=marker.position
             SelectedLocationID = selectedMarker!!.latitude.toString()+selectedMarker!!.longitude.toString()
             OwnerId=getOwnerId(selectedMarker!!.latitude.toString()+selectedMarker!!.longitude.toString())
@@ -621,7 +695,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val placeID: String = marker.position.latitude.toString()+marker.position.longitude.toString()
             // if marker source is clicked
             Toast.makeText(this, placeID, Toast.LENGTH_SHORT).show()// display toast
-
+            progressBar.visibility = View.GONE
             origin = this!!.curLatLng!!;
             dest = marker.position;
 
@@ -753,11 +827,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         mMap.addMarker(MarkerOptions()
                             .position(place)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.spaceimage)))
-
                     }
-                    if (jsonObject.containsKey("mail")) {
-                        //emailHold.text =  jsonObject.get("mail").toString()
-                        //edit_email.setKeyListener(null);
+                    if (jsonObject.containsKey("bikesCost")) {
+                        bikesCost=bikesCost.plus(jsonObject.get("bikesCost").toString().toInt())
+                    }else{
+                        bikesCost=bikesCost.plus(0)
+                    }
+                    if (jsonObject.containsKey("bikeCount")) {
+                        bikesCount=bikesCount.plus(jsonObject.get("bikeCount").toString().toInt())
+                    }else{
+                        bikesCount=bikesCount.plus(0)
+                    }
+                    if (jsonObject.containsKey("carsCost")) {
+                        carsCost=carsCost.plus(jsonObject.get("carsCost").toString().toInt())
+                    }else{
+                        carsCost=carsCost.plus(0)
+                    }
+                    if (jsonObject.containsKey("carCount")) {
+                        carsCount=carsCount.plus(jsonObject.get("carCount").toString().toInt())
+                    }else{
+                        carsCount=carsCount.plus(0)
                     }
 
                 }
@@ -765,6 +854,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .addOnFailureListener { exception ->
 
                 Toast.makeText(this@MainActivity, "Error getting documents: "+exception, Toast.LENGTH_SHORT).show()
+            }.addOnCompleteListener {
+                progressBar.visibility = View.GONE
             }
 
     }
@@ -836,6 +927,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun getOwnerDetails(ownerID: String) {
         print(ownerID)
+        upi=myView!!.findViewById<EditText>(R.id.upi)
+
 //        val jsonObje= HashMap<String, Any>()
         db.collection("Users").document(ownerID).get()
             .addOnCompleteListener(OnCompleteListener { task ->
@@ -844,7 +937,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     val jsonObject = task.result!!.data
                     if (jsonObject!!.containsKey("phno")) {
                         OwnerPhone=jsonObject.get("phno").toString()
-
+                        upi!!.setText(OwnerPhone)
                     }
 
                 } else {
