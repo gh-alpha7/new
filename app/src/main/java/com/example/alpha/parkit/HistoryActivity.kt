@@ -53,6 +53,11 @@ class HistoryActivity : AppCompatActivity() {
 
                     val jsonObject = document.data
                     var ownerName:String
+                    var carBike=R.drawable.bikrcml
+                    if(jsonObject.get("type").toString()=="Car"){
+                        carBike=R.drawable.carxml
+                    }
+
 
                     bookingList.add(
                         Booking(
@@ -60,8 +65,8 @@ class HistoryActivity : AppCompatActivity() {
                             jsonObject.get("placeName").toString(),
                             inTime = jsonObject.get("time_hrs").toString()+":"+jsonObject.get("time_mins").toString(),
                             outTime = (jsonObject.get("duration").toString().toInt()+jsonObject.get("time_hrs").toString().toInt()).toString()+":"+jsonObject.get("time_mins").toString(),
-                            money=jsonObject.get("amount").toString(),
-                            image=R.drawable.googleg_standard_color_18))
+                            money="₹"+jsonObject.get("amount").toString(),
+                            image=carBike))
                 }
             }
             .addOnFailureListener { exception ->
