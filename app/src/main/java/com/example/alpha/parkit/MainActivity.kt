@@ -119,8 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             date= Date(0,0,0,0,0)
             db = FirebaseFirestore.getInstance()
             user = FirebaseAuth.getInstance()
-        val sharedPref = this.getSharedPreferences("com.example.alpha.alphaPark", 0)
-        emaiL = sharedPref.getString("Email", "")
+
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
@@ -130,14 +129,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 1
             )
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                1
-            )
-        }
+
         progressBar = findViewById<ProgressBar>(R.id.progressBarMainTab)
         progressBar.visibility = View.VISIBLE
         var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -351,6 +343,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         dur=durHold.text.toString()
         if(amount=="" || upi =="" || dur=="") {
             Toast.makeText(this, "Please fill fields", Toast.LENGTH_SHORT).show()
+        }
+        else if(amount=="0"){
+            popupWindow!!.dismiss()
+            setBooking(OwnerId, SelectedLocationID, amount, dur, vehicle)
+
+            Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
         }
         else {
             popupWindow!!.dismiss()

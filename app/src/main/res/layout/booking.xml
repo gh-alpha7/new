@@ -33,12 +33,13 @@
                     android:layout_height="wrap_content" android:layout_marginTop="20sp">
                 <TextView
                         android:text="Sun, Dec 02, 18"
-                        android:layout_width="306dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="83dp"
                         android:id="@+id/date" android:layout_marginLeft="83dp"
                         android:textStyle="bold" android:textColor="@color/common_google_signin_btn_text_dark_focused"
-                        android:layout_margin="2dp" android:textSize="14sp" android:layout_marginTop="10dp"/>
+                        android:layout_margin="2dp" android:textSize="14sp" android:layout_marginTop="10dp"
+                        android:gravity="left"/>
                 <TextView
                         android:text="₹28"
                         android:layout_width="match_parent"
@@ -46,7 +47,7 @@
                         android:id="@+id/money" android:textSize="14sp"
                         android:textColor="@color/common_google_signin_btn_text_dark_focused"
                         android:layout_margin="2dp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" android:gravity="right"/>
             </LinearLayout>
             <TextView
                     android:text="Location"
