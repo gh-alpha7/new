@@ -121,6 +121,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             user = FirebaseAuth.getInstance()
 
 
+
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
@@ -130,15 +132,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
         }
 
+
         progressBar = findViewById<ProgressBar>(R.id.progressBarMainTab)
         progressBar.visibility = View.VISIBLE
         var inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
         myView = inflater.inflate(R.layout.activity_spot_book, null)
         val toggle = ActionBarDrawerToggle(
-            this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+
+
 
         //View map_holder =  findViewById (R.id.map_holder);
         //View map = map_holder.findViewBId (R.id.map)
@@ -152,8 +158,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val autocompleteFragment =
             fragmentManager.findFragmentById(place_autocomplete_fragment) as PlaceAutocompleteFragment
 
-
-
+        val placeSearchImage=findViewById<ImageView>(R.id.place_autocomplete_search_button)
+//        placeSearchImage.setVisibility(View.GONE)
+        placeSearchImage.setImageResource(R.drawable.map_marker)
+        val placeSearcText=findViewById<EditText>(R.id.place_autocomplete_search_input)
+        placeSearcText.setTextSize(20.0f)
+        placeSearcText.setHint("where to park?")
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
 //                mMap.clear()
@@ -168,7 +178,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?;
         locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        //navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         setUserData()
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
@@ -677,6 +687,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.setMapStyle(
+            MapStyleOptions.loadRawResourceStyle(
+                this, R.raw.google_style))
+
+
         enableMyLocationIfPermitted()
         populatePage()
 
@@ -702,7 +717,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             print(url)
             true
         }
-        //mMap.setMinZoomPreference(11F)
+//        mMap.setMinZoomPreference(11F)
         //showDefaultLocation()
 
     }
@@ -762,7 +777,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onLocationChanged(location: Location?) {
         curLatLng =  LatLng(location!!.getLatitude(), location.getLongitude());
-        var cameraUpdate = CameraUpdateFactory.newLatLngZoom(curLatLng, 10F);
+        var cameraUpdate = CameraUpdateFactory.newLatLngZoom(curLatLng, 17F);
         mMap.animateCamera(cameraUpdate);
     }
 

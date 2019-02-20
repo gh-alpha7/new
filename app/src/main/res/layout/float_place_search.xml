@@ -8,10 +8,10 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:showIn="@layout/app_bar_main"
         tools:context=".MainActivity"
-
+        android:elevation="20dp"
         android:background="@drawable/fragment_back"
-        android:layout_gravity="top|left" android:layout_marginRight="60dp" android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp" android:layout_marginTop="10dp">
+        android:layout_gravity="top|left" android:layout_marginRight="20dp" android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp" android:layout_marginTop="10dp">
     <fragment
             android:id="@+id/place_autocomplete_fragment"
             android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"

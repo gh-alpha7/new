@@ -1,66 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity">
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
+    <include layout="@layout/content_main"/>
     <android.support.design.widget.AppBarLayout
-            android:layout_height="50dp"
             android:layout_width="match_parent"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:layout_alignParentTop="true"
+    >
 
         <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay">
-
-
-
-
-
-        </android.support.v7.widget.Toolbar>
-
+                android:layout_height="?attr/actionBarSize" android:layout_marginRight="70dp"/>
 
     </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_main"/>
-    <include layout="@layout/float_place_search" />
-    <!--<FrameLayout-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="right"-->
-            <!--android:layout_marginRight="2dp" android:layout_marginTop="100dp">-->
-
-        <!--<android.support.design.widget.FloatingActionButton-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:clickable="true"-->
-                <!--android:id="@+id/navFloatingRefresh"-->
-                <!--app:backgroundTint="@color/colorPrimary" android:layout_gravity="bottom"-->
-                <!--android:layout_margin="10dp"-->
-                <!--android:onClick="clickRefresh"-->
-                <!--android:src="@drawable/refresh"-->
-        <!--/>-->
-    <!--</FrameLayout>-->
-
-
-    <android.support.design.widget.BottomNavigationView
-            android:id="@+id/navigation"
+    <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="?android:attr/windowBackground"
-            app:itemBackground="?attr/colorPrimary"
-            android:foreground="?attr/selectableItemBackground"
-            app:itemIconTint="@android:color/white"
-            app:itemTextColor="@android:color/white"
-            app:menu="@menu/bottom_nav" />
+            android:layout_height="match_parent"
+
+            tools:context=".core.MainActivity" android:layout_marginTop="50dp"
+    android:elevation="20dp">
+
+            <include layout="@layout/float_place_search" />
+
+    </LinearLayout>
 
 
-</android.support.design.widget.CoordinatorLayout>
+</android.support.v4.widget.DrawerLayout>
+<!--<android.support.design.widget.CoordinatorLayout-->
+        <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--xmlns:tools="http://schemas.android.com/tools"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--tools:context=".MainActivity">-->
+
+
+    <!--<android.support.design.widget.AppBarLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@android:color/transparent"-->
+            <!--android:layout_alignParentTop="true">-->
+
+        <!--<android.support.v7.widget.Toolbar-->
+                <!--android:id="@+id/toolbar"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="?attr/actionBarSize" />-->
+
+    <!--</android.support.design.widget.AppBarLayout>-->
+
+    <!--<include layout="@layout/content_main"/>-->
+    <!--<include layout="@layout/float_place_search" />-->
+    <!--&lt;!&ndash;<FrameLayout&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_gravity="right"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_marginRight="2dp" android:layout_marginTop="100dp">&ndash;&gt;-->
+
+        <!--&lt;!&ndash;<android.support.design.widget.FloatingActionButton&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:clickable="true"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:id="@+id/navFloatingRefresh"&ndash;&gt;-->
+                <!--&lt;!&ndash;app:backgroundTint="@color/colorPrimary" android:layout_gravity="bottom"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_margin="10dp"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:onClick="clickRefresh"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:src="@drawable/refresh"&ndash;&gt;-->
+        <!--&lt;!&ndash;/>&ndash;&gt;-->
+    <!--&lt;!&ndash;</FrameLayout>&ndash;&gt;-->
+
+
+    <!--<android.support.design.widget.BottomNavigationView-->
+            <!--android:id="@+id/navigation"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="bottom"-->
+            <!--android:background="?android:attr/windowBackground"-->
+            <!--app:itemBackground="?attr/colorPrimary"-->
+            <!--android:foreground="?attr/selectableItemBackground"-->
+            <!--app:itemIconTint="@android:color/white"-->
+            <!--app:itemTextColor="@android:color/white"-->
+            <!--app:menu="@menu/bottom_nav" />-->
+
+
+<!--</android.support.design.widget.CoordinatorLayout>-->
